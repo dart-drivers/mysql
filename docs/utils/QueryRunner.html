@@ -1,0 +1,152 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>QueryRunner class / utils Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="utils" data-type="QueryRunner">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../utils.html">utils</a> &rsaquo; <a href="../utils/QueryRunner.html">QueryRunner</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>QueryRunner</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Runs a list of arbitrary queries. Currently only handles update
+queries as the results are ignored.</p>
+<pre class="source">
+class QueryRunner {
+ final ConnectionPool pool;
+ final List&lt;String&gt; queries;
+ final List&lt;String&gt; _queries = [];
+ 
+ /**
+  * Create a [QueryRunner]. Needs a [pool] and
+  * a list of [queries]. 
+  */
+ QueryRunner(this.pool, this.queries);
+ 
+ Future _executeQueries(Completer c) {
+   var query = _queries.removeAt(0);
+   pool.query(query).then((result) {
+     if (_queries.length == 0) {
+       c.complete(null);
+     } else {
+       _executeQueries(c);
+     }
+   });
+ }
+
+ /**
+  * Executes the queries this [QueryRunner] was created with. The
+  * returned [Future] completes when all the queries have been executed.
+  * Results are ignored.
+  * 
+  * Do not run this a second time until the future has completed.
+  */
+ Future executeQueries() {
+   var c = new Completer();
+   _queries.clear();
+   _queries.addAll(queries);
+   _executeQueries(c);
+   return c.future;
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="QueryRunner">
+<button class="show-code">Code</button>
+new <strong>QueryRunner</strong>(<a href="../sqljocky/ConnectionPool.html">ConnectionPool</a> pool, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; queries) <a class="anchor-link" href="#QueryRunner"
+              title="Permalink to QueryRunner.QueryRunner">#</a></h4>
+<div class="doc">
+<p>Create a <a class="crossref" href="../utils/QueryRunner.html#QueryRunner">QueryRunner</a>. Needs a 
+<span class="param">pool</span> and
+a list of 
+<span class="param">queries</span>. </p>
+<pre class="source">
+QueryRunner(this.pool, this.queries);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="pool">
+<button class="show-code">Code</button>
+final <a href="../sqljocky/ConnectionPool.html">ConnectionPool</a>         <strong>pool</strong> <a class="anchor-link"
+            href="#pool"
+            title="Permalink to QueryRunner.pool">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final ConnectionPool pool
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="queries">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt;         <strong>queries</strong> <a class="anchor-link"
+            href="#queries"
+            title="Permalink to QueryRunner.queries">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final List&lt;String&gt; queries
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="executeQueries">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>executeQueries</strong>() <a class="anchor-link" href="#executeQueries"
+              title="Permalink to QueryRunner.executeQueries">#</a></h4>
+<div class="doc">
+<p>Executes the queries this <a class="crossref" href="../utils/QueryRunner.html#QueryRunner">QueryRunner</a> was created with. The
+returned <code>Future</code> completes when all the queries have been executed.
+Results are ignored.</p>
+<p>Do not run this a second time until the future has completed.</p>
+<pre class="source">
+Future executeQueries() {
+ var c = new Completer();
+ _queries.clear();
+ _queries.addAll(queries);
+ _executeQueries(c);
+ return c.future;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-04-16 22:28:42.988</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

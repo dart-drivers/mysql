@@ -1,0 +1,160 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>TableDropper class / utils Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="utils" data-type="TableDropper">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../utils.html">utils</a> &rsaquo; <a href="../utils/TableDropper.html">TableDropper</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>TableDropper</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Drops a set of tables.</p>
+<pre class="source">
+class TableDropper {
+ ConnectionPool pool;
+ List&lt;String&gt; tables;
+ List&lt;String&gt; _tables = [];
+ 
+ /**
+  * Create a [TableDropper]. Needs a [pool] and
+  * a list of [tables].
+  */
+ TableDropper(this.pool, this.tables);
+ 
+ void _dropTables(Completer c) {
+   afterDrop() {
+     if (_tables.length == 0) {
+       c.complete(null);
+     } else {
+       _dropTables(c);
+     }
+   }
+   
+   var table = _tables.removeAt(0);
+   pool.query('drop table $table')
+     // if it's an unknown table, ignore the error and continue
+     .then((x) {
+       afterDrop();
+     })
+     .catchError((e) {
+       afterDrop();
+     }, test: (e) =&gt; e is MySqlError &amp;&amp; (e as MySqlError).errorNumber == ERROR_UNKNOWN_TABLE);
+ }
+
+ /**
+  * Drops the tables this [TableDropper] was created with. The 
+  * returned [Future] completes when all the tables have been dropped.
+  * If a table doesn't exist, it is ignored.
+  * 
+  * Do not run this a second time until the future has completed.
+  */
+ Future dropTables() {
+   var c = new Completer();
+   _tables.clear();
+   _tables.addAll(tables);
+   _dropTables(c);
+   return c.future;
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="TableDropper">
+<button class="show-code">Code</button>
+new <strong>TableDropper</strong>(<a href="../sqljocky/ConnectionPool.html">ConnectionPool</a> pool, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; tables) <a class="anchor-link" href="#TableDropper"
+              title="Permalink to TableDropper.TableDropper">#</a></h4>
+<div class="doc">
+<p>Create a <a class="crossref" href="../utils/TableDropper.html#TableDropper">TableDropper</a>. Needs a 
+<span class="param">pool</span> and
+a list of 
+<span class="param">tables</span>.</p>
+<pre class="source">
+TableDropper(this.pool, this.tables);
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="pool">
+<button class="show-code">Code</button>
+<a href="../sqljocky/ConnectionPool.html">ConnectionPool</a>         <strong>pool</strong> <a class="anchor-link"
+            href="#pool"
+            title="Permalink to TableDropper.pool">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+ConnectionPool pool
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="tables">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt;         <strong>tables</strong> <a class="anchor-link"
+            href="#tables"
+            title="Permalink to TableDropper.tables">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+List&lt;String&gt; tables
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="dropTables">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>dropTables</strong>() <a class="anchor-link" href="#dropTables"
+              title="Permalink to TableDropper.dropTables">#</a></h4>
+<div class="doc">
+<p>Drops the tables this <a class="crossref" href="../utils/TableDropper.html#TableDropper">TableDropper</a> was created with. The 
+returned <code>Future</code> completes when all the tables have been dropped.
+If a table doesn't exist, it is ignored.</p>
+<p>Do not run this a second time until the future has completed.</p>
+<pre class="source">
+Future dropTables() {
+ var c = new Completer();
+ _tables.clear();
+ _tables.addAll(tables);
+ _dropTables(c);
+ return c.future;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-04-16 22:28:42.995</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

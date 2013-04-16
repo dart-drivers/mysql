@@ -1,0 +1,397 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Query class / sqljocky Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="sqljocky" data-type="Query">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../sqljocky.html">sqljocky</a> &rsaquo; <a href="../sqljocky/Query.html">Query</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Query</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Query is created by ConnectionPool.prepare(sql) and Transaction.prepare(sql). It holds
+a prepared query. Set parameters on it using the square bracket operators.</p>
+<pre class="source">
+class Query {
+ final ConnectionPool _pool;
+ final _Connection _cnx;
+ final String sql;
+ final Logger log;
+ final _inTransaction;
+ List&lt;dynamic&gt; _values;
+ bool _executed = false;
+ 
+ Query._internal(this._pool, this.sql) :
+     _cnx = null,
+     _inTransaction = false,
+     log = new Logger("Query");
+
+ Query._forTransaction(this._pool, _Connection cnx, this.sql) :
+     _cnx = cnx,
+     _inTransaction = true,
+     log = new Logger("Query");
+ 
+ Future&lt;_Connection&gt; _getConnection() {
+   if (_cnx != null) {
+     var c = new Completer&lt;_Connection&gt;();
+     c.complete(_cnx);
+     return c.future;
+   }
+   return _pool._getConnection();
+ }
+
+ Future&lt;_PreparedQuery&gt; _prepare() {
+   log.fine("Getting prepared query for: $sql");
+   var c = new Completer&lt;_PreparedQuery&gt;();
+   
+   _getConnection()
+     .then((cnx) {
+       log.fine("Got cnx#${cnx.number}");
+       if (!_useCachedQuery(cnx, c)) {
+         _prepareAndCacheQuery(cnx, c);
+       }
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+ 
+ /**
+  * Returns true if there was already a cached query which has been used.
+  */
+ bool _useCachedQuery(_Connection cnx, Completer c) {
+   var preparedQuery = cnx.getPreparedQueryFromCache(sql);
+   if (preparedQuery == null) {
+     return false;
+   }
+
+   log.fine("Got prepared query from cache in cnx#${cnx.number} for: $sql");
+   _setUpValues(preparedQuery);
+   c.complete(preparedQuery);
+   return true;
+ }
+ 
+ void _prepareAndCacheQuery(_Connection cnx, Completer c) {
+   log.fine("Preparing new query in cnx#${cnx.number} for: $sql");
+   var handler = new _PrepareHandler(sql);
+   cnx.use();
+   cnx.processHandler(handler)
+     .then((preparedQuery) {
+       log.fine("Prepared new query in cnx#${cnx.number} for: $sql");
+       preparedQuery.cnx = cnx;
+       cnx.putPreparedQueryInCache(sql, preparedQuery);
+       _setUpValues(preparedQuery);
+       c.complete(preparedQuery);
+     })
+     .catchError((e) {
+       c.completeError(e);
+       _releaseConnection(cnx);
+       _reuseConnection(cnx);
+     });
+ }
+ 
+ _setUpValues(_PreparedQuery preparedQuery) {
+   if (_values == null) {
+     _values = new List&lt;dynamic&gt;(preparedQuery.parameters.length);
+   }
+ }
+     
+ void close() {
+   _pool._closeQuery(this, _inTransaction);
+ }
+ 
+ //TODO: maybe have execute(Transaction) and execute(ConnectionPool)/**
+ /**
+  * Executes the query, returning a future [Results] object.
+  */
+ Future&lt;Results&gt; execute() {
+   var c = new Completer&lt;Results&gt;();
+   _prepare()
+     .then((preparedQuery) {
+       _execute(preparedQuery)
+         .then((Results results) {
+           _releaseConnection(preparedQuery.cnx);
+           c.complete(results);
+           _reuseConnection(preparedQuery.cnx);
+         })
+         .catchError((e) {
+           c.completeError(e);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+ 
+ Future&lt;Results&gt; _execute(_PreparedQuery preparedQuery) {
+   log.finest("About to execute");
+   var c = new Completer&lt;Results&gt;();
+   var handler = new _ExecuteQueryHandler(preparedQuery, _executed, _values);
+   preparedQuery.cnx.processHandler(handler)
+     .then((results) {
+       log.finest("Prepared query got results");
+       c.complete(results);
+     })
+     .catchError((e) {
+       c.completeError(e);
+       _releaseConnection(preparedQuery.cnx);
+       _reuseConnection(preparedQuery.cnx);
+     });
+   return c.future;
+ }
+
+ /**
+  * Executes the query once for each set of [parameters], and returns a future list
+  * of results, one for each set of parameters, that completes when the query has been executed.
+  */
+ Future&lt;List&lt;Results&gt;&gt; executeMulti(List&lt;List&lt;dynamic&gt;&gt; parameters) {
+   var c = new Completer&lt;List&lt;Results&gt;&gt;();
+   _prepare()
+     .then((preparedQuery) {
+       log.fine("Prepared query for multi execution. Number of values: ${parameters.length}");
+       var resultList = new List&lt;Results&gt;();
+       
+       executeQuery(int i) {
+         log.fine("Executing query, loop $i");
+         _values.setRange(0, _values.length, parameters[i]);
+         _execute(preparedQuery)
+           .then((Results results) {
+             log.fine("Got results, loop $i");
+             resultList.add(results);
+             if (i &lt; parameters.length - 1) {
+               executeQuery(i + 1);
+             } else {
+               _releaseConnection(preparedQuery.cnx);
+               c.complete(resultList);
+               _reuseConnection(preparedQuery.cnx);
+             }
+           })
+           .catchError((e) {
+             c.completeError(e);
+             _releaseConnection(preparedQuery.cnx);
+             _reuseConnection(preparedQuery.cnx);
+           });
+       }
+       
+       executeQuery(0);
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+
+ /**
+  * Get a current parameter value.
+  */
+ dynamic operator [](int pos) =&gt; _values[pos];
+
+ /**
+  * Set a parameter value.
+  */
+ void operator []=(int index, dynamic value) {
+   _values[index] = value;
+   _executed = false;
+ }
+
+ _releaseConnection(_Connection cnx) {
+   if (!_inTransaction) {
+     _pool._releaseConnection(cnx);
+   }
+ }
+
+ /**
+  * Attempt to reuse a connection for a queued operation
+  */
+ _reuseConnection(_Connection cnx) {
+   if (!_inTransaction) {
+     _pool._reuseConnection(cnx);
+   }
+ }
+//  dynamic longData(int index, data);
+//  dynamic reset();
+//  dynamic fetch(int rows);
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="log">
+<button class="show-code">Code</button>
+final Logger         <strong>log</strong> <a class="anchor-link"
+            href="#log"
+            title="Permalink to Query.log">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Logger log
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="sql">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/String.html">String</a>         <strong>sql</strong> <a class="anchor-link"
+            href="#sql"
+            title="Permalink to Query.sql">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final String sql
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Operators</h3>
+<div class="method"><h4 id="[]">
+<button class="show-code">Code</button>
+dynamic <strong>operator []</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> pos) <a class="anchor-link" href="#[]"
+              title="Permalink to Query.operator []">#</a></h4>
+<div class="doc">
+<p>Get a current parameter value.</p>
+<pre class="source">
+dynamic operator [](int pos) =&gt; _values[pos];
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="[]=">
+<button class="show-code">Code</button>
+void <strong>operator []=</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> index, value) <a class="anchor-link" href="#[]="
+              title="Permalink to Query.operator []=">#</a></h4>
+<div class="doc">
+<p>Set a parameter value.</p>
+<pre class="source">
+void operator []=(int index, dynamic value) {
+ _values[index] = value;
+ _executed = false;
+}
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="close">
+<button class="show-code">Code</button>
+void <strong>close</strong>() <a class="anchor-link" href="#close"
+              title="Permalink to Query.close">#</a></h4>
+<div class="doc">
+<pre class="source">
+void close() {
+ _pool._closeQuery(this, _inTransaction);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="execute">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Results.html">Results</a>&gt; <strong>execute</strong>() <a class="anchor-link" href="#execute"
+              title="Permalink to Query.execute">#</a></h4>
+<div class="doc">
+<p>Executes the query, returning a future <a class="crossref" href="../sqljocky/Results.html">Results</a> object.</p>
+<pre class="source">
+Future&lt;Results&gt; execute() {
+ var c = new Completer&lt;Results&gt;();
+ _prepare()
+   .then((preparedQuery) {
+     _execute(preparedQuery)
+       .then((Results results) {
+         _releaseConnection(preparedQuery.cnx);
+         c.complete(results);
+         _reuseConnection(preparedQuery.cnx);
+       })
+       .catchError((e) {
+         c.completeError(e);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="executeMulti">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="../sqljocky/Results.html">Results</a>&gt;&gt; <strong>executeMulti</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;dynamic&gt;&gt; parameters) <a class="anchor-link" href="#executeMulti"
+              title="Permalink to Query.executeMulti">#</a></h4>
+<div class="doc">
+<p>Executes the query once for each set of 
+<span class="param">parameters</span>, and returns a future list
+of results, one for each set of parameters, that completes when the query has been executed.</p>
+<pre class="source">
+Future&lt;List&lt;Results&gt;&gt; executeMulti(List&lt;List&lt;dynamic&gt;&gt; parameters) {
+ var c = new Completer&lt;List&lt;Results&gt;&gt;();
+ _prepare()
+   .then((preparedQuery) {
+     log.fine("Prepared query for multi execution. Number of values: ${parameters.length}");
+     var resultList = new List&lt;Results&gt;();
+     
+     executeQuery(int i) {
+       log.fine("Executing query, loop $i");
+       _values.setRange(0, _values.length, parameters[i]);
+       _execute(preparedQuery)
+         .then((Results results) {
+           log.fine("Got results, loop $i");
+           resultList.add(results);
+           if (i &lt; parameters.length - 1) {
+             executeQuery(i + 1);
+           } else {
+             _releaseConnection(preparedQuery.cnx);
+             c.complete(resultList);
+             _reuseConnection(preparedQuery.cnx);
+           }
+         })
+         .catchError((e) {
+           c.completeError(e);
+           _releaseConnection(preparedQuery.cnx);
+           _reuseConnection(preparedQuery.cnx);
+         });
+     }
+     
+     executeQuery(0);
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ return c.future;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-04-16 22:28:42.903</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

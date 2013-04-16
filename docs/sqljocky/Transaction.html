@@ -1,0 +1,282 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Transaction class / sqljocky Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="sqljocky" data-type="Transaction">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../sqljocky.html">sqljocky</a> &rsaquo; <a href="../sqljocky/Transaction.html">Transaction</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Transaction</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<pre class="source">
+class Transaction {
+ _Connection _cnx;
+ ConnectionPool _pool;
+ bool _finished;
+ 
+ // TODO: maybe give the connection a link to its transaction?
+
+ Transaction._internal(this._cnx, this._pool) : _finished = false;
+ 
+ Future commit() {
+   _checkFinished();
+   _finished = true;
+   var c = new Completer();
+ 
+   var handler = new _QueryHandler("commit");
+   _cnx.processHandler(handler)
+     .then((results) {
+       _pool._releaseConnection(_cnx);
+       c.complete(results);
+       _pool._reuseConnection(_cnx);
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+
+   return c.future;
+ }
+ 
+ Future rollback() {
+   _checkFinished();
+   _finished = true;
+   var c = new Completer();
+ 
+   var handler = new _QueryHandler("rollback");
+   _cnx.processHandler(handler)
+     .then((results) {
+       _pool._releaseConnection(_cnx);
+       c.complete(results);
+       _pool._reuseConnection(_cnx);
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+
+   return c.future;
+ }
+
+ Future&lt;Results&gt; query(String sql) {
+   _checkFinished();
+   var c = new Completer&lt;Results&gt;();
+   
+   var handler = new _QueryHandler(sql);
+   _cnx.processHandler(handler)
+     .then((results) {
+       c.complete(results);
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+
+   return c.future;
+ }
+ 
+ //TODO: should the query get closed when the transaction is closed?
+ //TODO: it isn't valid any more, at least
+ Future&lt;Query&gt; prepare(String sql) {
+   _checkFinished();
+   var query = new Query._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
+   var c = new Completer&lt;Query&gt;();
+   query._prepare()
+     .then((preparedQuery) {
+       c.complete(query);
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+ 
+ Future&lt;Results&gt; prepareExecute(String sql, List&lt;dynamic&gt; parameters) {
+   _checkFinished();
+   var c = new Completer&lt;Results&gt;();
+   prepare(sql)
+     .then((query) {
+       query.execute()
+         .then((results) {
+           query.close();
+           c.complete(results);
+         })
+         .catchError((e) {
+           c.completeError(e);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+
+ void _checkFinished() {
+   if (_finished) {
+     throw new StateError("Transaction has already finished");
+   }
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="commit">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>commit</strong>() <a class="anchor-link" href="#commit"
+              title="Permalink to Transaction.commit">#</a></h4>
+<div class="doc">
+<pre class="source">
+Future commit() {
+ _checkFinished();
+ _finished = true;
+ var c = new Completer();
+
+ var handler = new _QueryHandler("commit");
+ _cnx.processHandler(handler)
+   .then((results) {
+     _pool._releaseConnection(_cnx);
+     c.complete(results);
+     _pool._reuseConnection(_cnx);
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="prepare">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
+              title="Permalink to Transaction.prepare">#</a></h4>
+<div class="doc">
+<pre class="source">
+Future&lt;Query&gt; prepare(String sql) {
+ _checkFinished();
+ var query = new Query._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
+ var c = new Completer&lt;Query&gt;();
+ query._prepare()
+   .then((preparedQuery) {
+     c.complete(query);
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="prepareExecute">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;dynamic&gt; parameters) <a class="anchor-link" href="#prepareExecute"
+              title="Permalink to Transaction.prepareExecute">#</a></h4>
+<div class="doc">
+<pre class="source">
+Future&lt;Results&gt; prepareExecute(String sql, List&lt;dynamic&gt; parameters) {
+ _checkFinished();
+ var c = new Completer&lt;Results&gt;();
+ prepare(sql)
+   .then((query) {
+     query.execute()
+       .then((results) {
+         query.close();
+         c.complete(results);
+       })
+       .catchError((e) {
+         c.completeError(e);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="query">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
+              title="Permalink to Transaction.query">#</a></h4>
+<div class="doc">
+<pre class="source">
+Future&lt;Results&gt; query(String sql) {
+ _checkFinished();
+ var c = new Completer&lt;Results&gt;();
+ 
+ var handler = new _QueryHandler(sql);
+ _cnx.processHandler(handler)
+   .then((results) {
+     c.complete(results);
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="rollback">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>rollback</strong>() <a class="anchor-link" href="#rollback"
+              title="Permalink to Transaction.rollback">#</a></h4>
+<div class="doc">
+<pre class="source">
+Future rollback() {
+ _checkFinished();
+ _finished = true;
+ var c = new Completer();
+
+ var handler = new _QueryHandler("rollback");
+ _cnx.processHandler(handler)
+   .then((results) {
+     _pool._releaseConnection(_cnx);
+     c.complete(results);
+     _pool._reuseConnection(_cnx);
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+
+ return c.future;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-04-16 22:28:42.925</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

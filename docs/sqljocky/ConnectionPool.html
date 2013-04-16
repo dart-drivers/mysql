@@ -1,0 +1,698 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ConnectionPool class / sqljocky Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="sqljocky" data-type="ConnectionPool">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../sqljocky.html">sqljocky</a> &rsaquo; <a href="../sqljocky/ConnectionPool.html">ConnectionPool</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ConnectionPool</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Maintains a pool of database connections. When queries are executed, if there is
+a free connection it will be used, otherwise the query is queued until a connection is
+free. </p>
+<pre class="source">
+class ConnectionPool {
+ final Logger log;
+
+ final String _host;
+ final int _port;
+ final String _user;
+ final String _password;
+ final String _db;
+ 
+ int _max;
+
+ /*
+  * The pool maintains a queue of connection requests. When a connection completes, if there
+  * is a connection in the queue then it is 'activated' - that is, the future returned 
+  * by _getConnection() completes.
+  */
+ final Queue&lt;Completer&lt;_Connection&gt;&gt; _pendingConnections;
+ final List&lt;_Connection&gt; _pool;
+ 
+ /**
+  * Creates a [ConnectionPool]. When connections are required they will connect to the
+  * [db] on the given [host] and [port], using the [user] and [password]. The [max] number
+  * of simultaneous connections can also be specified.
+  */
+ ConnectionPool({String host: 'localhost', int port: 3306, String user,
+     String password, String db, int max: 5}) :
+       _pendingConnections = new Queue&lt;Completer&lt;_Connection&gt;&gt;(),
+       _pool = new List&lt;_Connection&gt;(),
+       _host = host,
+       _port = port,
+       _user = user,
+       _password = password,
+       _db = db,
+       _max = max,
+       log = new Logger("ConnectionPool");
+ 
+ Future&lt;_Connection&gt; _getConnection() {
+   log.finest("Getting a connection");
+   var c = new Completer&lt;_Connection&gt;();
+
+   var inUseCount = 0;
+   for (var cnx in _pool) {
+     if (cnx.inUse) {
+       inUseCount++;
+     }
+   }
+   log.finest("Number of in-use connections: $inUseCount");
+   
+   for (var cnx in _pool) {
+     if (!cnx.inUse) {
+       log.finest("Using open pooled cnx#${cnx.number}");
+       cnx.use();
+       c.complete(cnx);
+       return c.future;
+     }
+   }
+   
+   if (_pool.length &lt; _max) {
+     log.finest("Creating new pooled cnx#${_pool.length}");
+     var cnx = new _Connection(this, _pool.length);
+     cnx.use();
+     var future = cnx.connect(
+         host: _host, 
+         port: _port, 
+         user: _user, 
+         password: _password, 
+         db: _db);
+     _pool.add(cnx);
+     future
+       .then((x) {
+         log.finest("Logged in on cnx#${cnx.number}");
+         c.complete(cnx);
+       })
+       .catchError((e) {
+         c.completeError(e);
+         _releaseConnection(cnx);
+         _reuseConnection(cnx);
+       });
+   } else {
+     log.finest("Waiting for an available connection");
+     _pendingConnections.add(c);
+   }
+   return c.future;
+ }
+ 
+ _releaseConnection(_Connection cnx) {
+   cnx.release();
+   log.finest("Finished with cnx#${cnx.number}: marked as not in use");
+ }
+ 
+ /**
+  * Attempts to continue using a connection. If the connection isn't managed
+  * by this pool, or if the connection is already in use, nothing happens.
+  * 
+  * If there are operations which have been queued in this pool, starts
+  * to execute that operation. 
+  * 
+  * Otherwise, nothing happens.
+  * 
+  * //TODO rename to something like processQueuedOperations??
+  */
+ _reuseConnection(_Connection cnx) {
+   if (!_pool.contains(cnx)) {
+     log.warning("reuseConnection called for unmanaged connection");
+     return;
+   }
+   
+   if (cnx.inUse) {
+     log.finest("cnx#${cnx.number} already reused");
+     return;
+   }
+   
+   if (_pendingConnections.length &gt; 0) {
+     log.finest("Reusing cnx#${cnx.number} for a queued operation");
+     var c = _pendingConnections.removeFirst();
+     cnx.use();
+     c.complete(cnx);
+   }
+ }
+ 
+ // dangerous - would need to switch all connections
+//  Future useDatabase(String dbName) {
+//    var completer = new Completer();
+//    
+//    var cnxFuture = _getConnection();
+//    cnxFuture.then((cnx) {
+//      var handler = new UseDbHandler(dbName);
+//      var future = _connection.processHandler(handler);
+//      future.then((x) {
+//        completer.completer();
+//      });
+//      handleFutureException(future, completer);
+//    });
+//    handleFutureException(cnxFuture, completer);
+//    
+//    return completer.future;
+//  }
+ 
+ /**
+  * Closes all open connections. 
+  * 
+  * WARNING: this will probably break things.
+  */
+ void close() {
+   for (_Connection cnx in _pool) {
+     cnx.close();
+   }
+ }
+
+ /**
+  * Executes the [sql] query as soon as a connection is available, returning
+  * a [Future&lt;Results&gt;] that completes when the results are available.
+  */
+ Future&lt;Results&gt; query(String sql) {
+   log.info("Running query: ${sql}");
+   var c = new Completer&lt;Results&gt;();
+   
+   _getConnection()
+     .then((cnx) {
+       log.fine("Got cnx#${cnx.number} for query");
+       cnx.processHandler(new _QueryHandler(sql))
+         .then((results) {
+           log.fine("Got query results on #${cnx.number} for: ${sql}");
+           _releaseConnection(cnx);
+           c.complete(results);
+           _reuseConnection(cnx);
+         })
+         .catchError((e) {
+           c.completeError(e);
+           _releaseConnection(cnx);
+           _reuseConnection(cnx);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+
+   return c.future;
+ }
+
+ /**
+  * Pings the server. Returns a [Future] that completes when the server replies.
+  */
+ Future ping() {
+   log.info("Pinging server");
+   var c = new Completer&lt;Results&gt;();
+   
+   _getConnection()
+     .then((cnx) {
+       cnx.processHandler(new _PingHandler())
+         .then((x) {
+           log.fine("Pinged");
+           _releaseConnection(cnx);
+           c.complete(x);
+           _reuseConnection(cnx);
+         })
+         .catchError((e) {
+           c.completeError(e);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   
+   return c.future;
+ }
+ 
+ /**
+  * Sends a debug message to the server. Returns a [Future] that completes
+  * when the server replies.
+  */
+ Future debug() {
+   log.info("Sending debug message");
+   var c = new Completer&lt;Results&gt;();
+   
+   _getConnection()
+     .then((cnx) {
+       cnx.processHandler(new _DebugHandler())
+         .then((x) {
+           log.fine("Message sent");
+           c.complete(x);
+           _releaseConnection(cnx);
+         })
+         .catchError((e) {
+           c.completeError(e);
+           _releaseConnection(cnx);
+           _reuseConnection(cnx);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   
+   return c.future;
+ }
+ 
+ void _closeQuery(Query q, bool retain) {
+   log.finest("Closing query: ${q.sql}");
+   for (var cnx in _pool) {
+     var preparedQuery = cnx.removePreparedQueryFromCache(q.sql);
+     if (preparedQuery != null) {
+       _waitUntilReady(cnx).then((x) {
+         log.finest("Connection ready - closing query: ${q.sql}");
+         var handler = new _CloseStatementHandler(preparedQuery.statementHandlerId);
+         cnx.processHandler(handler, noResponse: true)
+           .then((x) {
+             if (!retain) {
+               _releaseConnection(cnx);
+               _reuseConnection(cnx);
+             }
+           })
+           .catchError((e) {
+             if (!retain) {
+               _releaseConnection(cnx);
+               _reuseConnection(cnx);
+             }
+           });
+       });
+     }
+   }
+ }
+
+ /**
+  * The future returned by [whenReady] fires when all queued operations in the pool
+  * have completed, and the connection is free to be used again.
+  */
+ Future&lt;_Connection&gt; _waitUntilReady(_Connection cnx) {
+   var c = new Completer&lt;_Connection&gt;();
+   if (!cnx.inUse) {
+     cnx.use();
+     c.complete(cnx);
+   } else {
+     _pendingConnections.add(c);
+   }
+   return c.future;
+ }
+
+ /**
+  * Prepares a query with the given [sql]. Returns a [Future&lt;Query&gt;] that
+  * completes when the query has been prepared.
+  */
+ Future&lt;Query&gt; prepare(String sql) {
+   var query = new Query._internal(this, sql);
+   var c = new Completer&lt;Query&gt;();
+   query._prepare()
+     .then((preparedQuery) {
+       log.info("Got value count");
+       _releaseConnection(preparedQuery.cnx);
+       c.complete(query);
+       _reuseConnection(preparedQuery.cnx);
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+ 
+ /**
+  * Starts a transaction. Returns a [Future&lt;Transaction&gt;] that completes
+  * when the transaction has been started. If [consistent] is true, the
+  * transaction is started with consistent snapshot.
+  */
+ Future&lt;Transaction&gt; startTransaction({bool consistent: false}) {
+   log.info("Starting transaction");
+   var c = new Completer&lt;Transaction&gt;();
+   
+   _getConnection()
+     .then((cnx) {
+       var sql;
+       if (consistent) {
+         sql = "start transaction with consistent snapshot";
+       } else {
+         sql = "start transaction";
+       }
+       cnx.processHandler(new _QueryHandler(sql))
+         .then((results) {
+           log.fine("Transaction started on cnx#${cnx.number}");
+           var transaction = new Transaction._internal(cnx, this);
+           c.complete(transaction);
+         })
+         .catchError((e) {
+           c.completeError(e);
+           _releaseConnection(cnx);
+           _reuseConnection(cnx);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   
+   return c.future;
+ }
+ 
+ /**
+  * Prepares and executes the [sql] with the given list of [parameters].
+  * Returns a [Future&lt;Results&gt;] that completes when the query has been
+  * executed.
+  */
+ Future&lt;Results&gt; prepareExecute(String sql, List&lt;dynamic&gt; parameters) {
+   var c = new Completer&lt;Results&gt;();
+   prepare(sql)
+     .then((q) {
+       for (int i = 0; i &lt; parameters.length; i++) {
+         q[i] = parameters[i];
+       }
+       q.execute()
+         .then((results) {
+           c.complete(results);
+         })
+         .catchError((e) {
+           c.completeError(e);
+         });
+     })
+     .catchError((e) {
+       c.completeError(e);
+     });
+   return c.future;
+ }
+ 
+//  dynamic fieldList(String table, [String column]);
+//  dynamic refresh(bool grant, bool log, bool tables, bool hosts,
+//                  bool status, bool threads, bool slave, bool master);
+//  dynamic shutdown(bool def, bool waitConnections, bool waitTransactions,
+//                   bool waitUpdates, bool waitAllBuffers,
+//                   bool waitCriticalBuffers, bool killQuery, bool killConnection);
+//  dynamic statistics();
+//  dynamic processInfo();
+//  dynamic processKill(int id);
+//  dynamic changeUser(String user, String password, [String db]);
+//  dynamic binlogDump(options);
+//  dynamic registerSlave(options);
+//  dynamic setOptions(int option);
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="ConnectionPool">
+<button class="show-code">Code</button>
+new <strong>ConnectionPool</strong>({<a href="http://api.dartlang.org/dart_core/String.html">String</a> host: 'localhost', <a href="http://api.dartlang.org/dart_core/int.html">int</a> port: 3306, <a href="http://api.dartlang.org/dart_core/String.html">String</a> user, <a href="http://api.dartlang.org/dart_core/String.html">String</a> password, <a href="http://api.dartlang.org/dart_core/String.html">String</a> db, <a href="http://api.dartlang.org/dart_core/int.html">int</a> max: 5}) <a class="anchor-link" href="#ConnectionPool"
+              title="Permalink to ConnectionPool.ConnectionPool">#</a></h4>
+<div class="doc">
+<p>Creates a <a class="crossref" href="../sqljocky/ConnectionPool.html#ConnectionPool">ConnectionPool</a>. When connections are required they will connect to the
+
+<span class="param">db</span> on the given 
+<span class="param">host</span> and 
+<span class="param">port</span>, using the 
+<span class="param">user</span> and 
+<span class="param">password</span>. The 
+<span class="param">max</span> number
+of simultaneous connections can also be specified.</p>
+<pre class="source">
+ConnectionPool({String host: 'localhost', int port: 3306, String user,
+   String password, String db, int max: 5}) :
+     _pendingConnections = new Queue&lt;Completer&lt;_Connection&gt;&gt;(),
+     _pool = new List&lt;_Connection&gt;(),
+     _host = host,
+     _port = port,
+     _user = user,
+     _password = password,
+     _db = db,
+     _max = max,
+     log = new Logger("ConnectionPool");
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="log">
+<button class="show-code">Code</button>
+final Logger         <strong>log</strong> <a class="anchor-link"
+            href="#log"
+            title="Permalink to ConnectionPool.log">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Logger log
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="close">
+<button class="show-code">Code</button>
+void <strong>close</strong>() <a class="anchor-link" href="#close"
+              title="Permalink to ConnectionPool.close">#</a></h4>
+<div class="doc">
+<p>Closes all open connections. </p>
+<p>WARNING: this will probably break things.</p>
+<pre class="source">
+void close() {
+ for (_Connection cnx in _pool) {
+   cnx.close();
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="debug">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>debug</strong>() <a class="anchor-link" href="#debug"
+              title="Permalink to ConnectionPool.debug">#</a></h4>
+<div class="doc">
+<p>Sends a debug message to the server. Returns a <code>Future</code> that completes
+when the server replies.</p>
+<pre class="source">
+Future debug() {
+ log.info("Sending debug message");
+ var c = new Completer&lt;Results&gt;();
+ 
+ _getConnection()
+   .then((cnx) {
+     cnx.processHandler(new _DebugHandler())
+       .then((x) {
+         log.fine("Message sent");
+         c.complete(x);
+         _releaseConnection(cnx);
+       })
+       .catchError((e) {
+         c.completeError(e);
+         _releaseConnection(cnx);
+         _reuseConnection(cnx);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ 
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="ping">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>ping</strong>() <a class="anchor-link" href="#ping"
+              title="Permalink to ConnectionPool.ping">#</a></h4>
+<div class="doc">
+<p>Pings the server. Returns a <code>Future</code> that completes when the server replies.</p>
+<pre class="source">
+Future ping() {
+ log.info("Pinging server");
+ var c = new Completer&lt;Results&gt;();
+ 
+ _getConnection()
+   .then((cnx) {
+     cnx.processHandler(new _PingHandler())
+       .then((x) {
+         log.fine("Pinged");
+         _releaseConnection(cnx);
+         c.complete(x);
+         _reuseConnection(cnx);
+       })
+       .catchError((e) {
+         c.completeError(e);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ 
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="prepare">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
+              title="Permalink to ConnectionPool.prepare">#</a></h4>
+<div class="doc">
+<p>Prepares a query with the given 
+<span class="param">sql</span>. Returns a [Future<Query>] that
+completes when the query has been prepared.</p>
+<pre class="source">
+Future&lt;Query&gt; prepare(String sql) {
+ var query = new Query._internal(this, sql);
+ var c = new Completer&lt;Query&gt;();
+ query._prepare()
+   .then((preparedQuery) {
+     log.info("Got value count");
+     _releaseConnection(preparedQuery.cnx);
+     c.complete(query);
+     _reuseConnection(preparedQuery.cnx);
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="prepareExecute">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;dynamic&gt; parameters) <a class="anchor-link" href="#prepareExecute"
+              title="Permalink to ConnectionPool.prepareExecute">#</a></h4>
+<div class="doc">
+<p>Prepares and executes the 
+<span class="param">sql</span> with the given list of 
+<span class="param">parameters</span>.
+Returns a [Future<Results>] that completes when the query has been
+executed.</p>
+<pre class="source">
+Future&lt;Results&gt; prepareExecute(String sql, List&lt;dynamic&gt; parameters) {
+ var c = new Completer&lt;Results&gt;();
+ prepare(sql)
+   .then((q) {
+     for (int i = 0; i &lt; parameters.length; i++) {
+       q[i] = parameters[i];
+     }
+     q.execute()
+       .then((results) {
+         c.complete(results);
+       })
+       .catchError((e) {
+         c.completeError(e);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="query">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
+              title="Permalink to ConnectionPool.query">#</a></h4>
+<div class="doc">
+<p>Executes the 
+<span class="param">sql</span> query as soon as a connection is available, returning
+a [Future<Results>] that completes when the results are available.</p>
+<pre class="source">
+Future&lt;Results&gt; query(String sql) {
+ log.info("Running query: ${sql}");
+ var c = new Completer&lt;Results&gt;();
+ 
+ _getConnection()
+   .then((cnx) {
+     log.fine("Got cnx#${cnx.number} for query");
+     cnx.processHandler(new _QueryHandler(sql))
+       .then((results) {
+         log.fine("Got query results on #${cnx.number} for: ${sql}");
+         _releaseConnection(cnx);
+         c.complete(results);
+         _reuseConnection(cnx);
+       })
+       .catchError((e) {
+         c.completeError(e);
+         _releaseConnection(cnx);
+         _reuseConnection(cnx);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+
+ return c.future;
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="startTransaction">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Transaction.html">Transaction</a>&gt; <strong>startTransaction</strong>({<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> consistent: false}) <a class="anchor-link" href="#startTransaction"
+              title="Permalink to ConnectionPool.startTransaction">#</a></h4>
+<div class="doc">
+<p>Starts a transaction. Returns a [Future<Transaction>] that completes
+when the transaction has been started. If 
+<span class="param">consistent</span> is true, the
+transaction is started with consistent snapshot.</p>
+<pre class="source">
+Future&lt;Transaction&gt; startTransaction({bool consistent: false}) {
+ log.info("Starting transaction");
+ var c = new Completer&lt;Transaction&gt;();
+ 
+ _getConnection()
+   .then((cnx) {
+     var sql;
+     if (consistent) {
+       sql = "start transaction with consistent snapshot";
+     } else {
+       sql = "start transaction";
+     }
+     cnx.processHandler(new _QueryHandler(sql))
+       .then((results) {
+         log.fine("Transaction started on cnx#${cnx.number}");
+         var transaction = new Transaction._internal(cnx, this);
+         c.complete(transaction);
+       })
+       .catchError((e) {
+         c.completeError(e);
+         _releaseConnection(cnx);
+         _reuseConnection(cnx);
+       });
+   })
+   .catchError((e) {
+     c.completeError(e);
+   });
+ 
+ return c.future;
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-04-16 22:28:42.957</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
