@@ -54,6 +54,9 @@ class QueryRunner {
      } else {
        _executeQueries(c);
      }
+   })
+   .catchError((e) {
+     c.completeError(e);
    });
  }
 
@@ -76,12 +79,12 @@ class QueryRunner {
 </div>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="QueryRunner">
+<div class="method"><h4 id="">
 <button class="show-code">Code</button>
-new <strong>QueryRunner</strong>(<a href="../sqljocky/ConnectionPool.html">ConnectionPool</a> pool, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; queries) <a class="anchor-link" href="#QueryRunner"
+new <strong>QueryRunner</strong>(<a href="../sqljocky/ConnectionPool.html">ConnectionPool</a> pool, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/String.html">String</a>&gt; queries) <a class="anchor-link" href="#"
               title="Permalink to QueryRunner.QueryRunner">#</a></h4>
 <div class="doc">
-<p>Create a <a class="crossref" href="../utils/QueryRunner.html#QueryRunner">QueryRunner</a>. Needs a 
+<p>Create a <a class="crossref" href="../utils/QueryRunner.html">QueryRunner</a>. Needs a 
 <span class="param">pool</span> and
 a list of 
 <span class="param">queries</span>. </p>
@@ -125,8 +128,8 @@ final List&lt;String&gt; queries
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>executeQueries</strong>() <a class="anchor-link" href="#executeQueries"
               title="Permalink to QueryRunner.executeQueries">#</a></h4>
 <div class="doc">
-<p>Executes the queries this <a class="crossref" href="../utils/QueryRunner.html#QueryRunner">QueryRunner</a> was created with. The
-returned <code>Future</code> completes when all the queries have been executed.
+<p>Executes the queries this <a class="crossref" href="../utils/QueryRunner.html">QueryRunner</a> was created with. The
+returned <a class="crossref" href="../dart_async/Future.html">Future</a> completes when all the queries have been executed.
 Results are ignored.</p>
 <p>Do not run this a second time until the future has completed.</p>
 <pre class="source">
@@ -145,7 +148,7 @@ Future executeQueries() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-04-16 22:28:42.988</div>
+          <div>This page was generated at 2013-11-14 23:46:23.299</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

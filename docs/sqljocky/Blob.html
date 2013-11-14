@@ -32,7 +32,7 @@
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
-<p>Holds blob data, and can be created or accessed as either a <code>String</code> or a <code>List</code> of ints.</p>
+<p>Holds blob data, and can be created or accessed as either a <a class="crossref" href="../dart_core/String.html">String</a> or a <a class="crossref" href="../dart_core/List.html">List</a> of ints.</p>
 <pre class="source">
 class Blob {
  String _string;
@@ -60,7 +60,7 @@ class Blob {
    if (_string != null) {
      return _string;
    }
-   return new String.fromCharCodes(_bytes);
+   return UTF8.decode(_bytes);
  }
  
  /**
@@ -70,7 +70,7 @@ class Blob {
    if (_bytes != null) {
      return _bytes;
    }
-   return _string.codeUnits;
+   return UTF8.encode(_string);
  }
  
  int get hashCode {
@@ -78,23 +78,21 @@ class Blob {
      if (_string != null) {
        _hashcode = _string.hashCode;
      } else {
-       _hashcode = new String.fromCharCodes(_bytes).hashCode;
+       _hashcode = UTF8.decode(_bytes).hashCode;
      }
    }
    return _hashcode;
  }
  
- bool operator ==(other) {
-   return toString() == other.toString();
- }
+ bool operator ==(other) =&gt; toString() == other.toString();
 }
 </pre>
 </div>
 <div>
 <h3>Constructors</h3>
-<div class="method"><h4 id="Blob.fromBytes">
+<div class="method"><h4 id="fromBytes">
 <button class="show-code">Code</button>
-new <strong>Blob.fromBytes</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; bytes) <a class="anchor-link" href="#Blob.fromBytes"
+new <strong>Blob.fromBytes</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; bytes) <a class="anchor-link" href="#fromBytes"
               title="Permalink to Blob.Blob.fromBytes">#</a></h4>
 <div class="doc">
 <p>Create a <a class="crossref" href="../sqljocky/Blob.html">Blob</a> from a list of 
@@ -106,9 +104,9 @@ Blob.fromBytes(List&lt;int&gt; bytes) {
 </pre>
 </div>
 </div>
-<div class="method"><h4 id="Blob.fromString">
+<div class="method"><h4 id="fromString">
 <button class="show-code">Code</button>
-new <strong>Blob.fromString</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> string) <a class="anchor-link" href="#Blob.fromString"
+new <strong>Blob.fromString</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> string) <a class="anchor-link" href="#fromString"
               title="Permalink to Blob.Blob.fromString">#</a></h4>
 <div class="doc">
 <p>Create a <a class="crossref" href="../sqljocky/Blob.html">Blob</a> from a 
@@ -146,7 +144,7 @@ int get hashCode {
    if (_string != null) {
      _hashcode = _string.hashCode;
    } else {
-     _hashcode = new String.fromCharCodes(_bytes).hashCode;
+     _hashcode = UTF8.decode(_bytes).hashCode;
    }
  }
  return _hashcode;
@@ -164,16 +162,27 @@ int get hashCode {
 <div class="doc">
 <div class="inherited">
 <p>The equality operator.</p>
-<p>The default behavior for all <code>Object</code>s is to return true if and
+<p>The default behavior for all <a class="crossref" href="../dart_core/Object.html">Object</a>s is to return true if and
 only if <code>this</code> and 
 <span class="param">other</span> are the same object.</p>
+<p>Override this method to specify a different equality relation on
+a class. The overriding method must still be an equivalence relation.
+That is, it must be:</p><ul><li>
+<p>Total: It must return a boolean for all arguments. It should never throw
+   or return <code>null</code>.</p></li><li>
+<p>Reflexive: For all objects <code>o</code>, <code>o == o</code> must be true.</p></li><li>
+<p>Symmetric: For all objects <code>o1</code> and <code>o2</code>, <code>o1 == o2</code> and <code>o2 == o1</code> must
+   either both be true, or both be false.</p></li><li>
+<p>Transitive: For all objects <code>o1</code>, <code>o2</code>, and <code>o3</code>, if <code>o1 == o2</code> and
+   <code>o2 == o3</code> are true, then <code>o1 == o3</code> must be true.</p></li></ul>
+<p>The method should also be consistent over time, so equality of two objects
+should not change over time, or at least only change if one of the objects
+was modified.</p>
 <p>If a subclass overrides the equality operator it should override
 the <a class="crossref" href="../sqljocky/Blob.html#hashCode">hashCode</a> method as well to maintain consistency.</p>
 <div class="docs-inherited-from">docs inherited from <a href="http://api.dartlang.org/dart_core/Object.html">Object</a> </div></div>
 <pre class="source">
-bool operator ==(other) {
- return toString() == other.toString();
-}
+bool operator ==(other) =&gt; toString() == other.toString();
 </pre>
 </div>
 </div>
@@ -191,7 +200,7 @@ List&lt;int&gt; toBytes() {
  if (_bytes != null) {
    return _bytes;
  }
- return _string.codeUnits;
+ return UTF8.encode(_string);
 }
 </pre>
 </div>
@@ -201,13 +210,13 @@ List&lt;int&gt; toBytes() {
 <a href="http://api.dartlang.org/dart_core/String.html">String</a> <strong>toString</strong>() <a class="anchor-link" href="#toString"
               title="Permalink to Blob.toString">#</a></h4>
 <div class="doc">
-<p>Returns the value of the blob as a <code>String</code>.</p>
+<p>Returns the value of the blob as a <a class="crossref" href="../dart_core/String.html">String</a>.</p>
 <pre class="source">
 String toString() {
  if (_string != null) {
    return _string;
  }
- return new String.fromCharCodes(_bytes);
+ return UTF8.decode(_bytes);
 }
 </pre>
 </div>
@@ -217,7 +226,7 @@ String toString() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-04-16 22:28:42.974</div>
+          <div>This page was generated at 2013-11-14 23:46:22.993</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

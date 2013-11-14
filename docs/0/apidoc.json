@@ -1,1 +1,1 @@
-{"name":"dart:","dependencies":[],"revision":"0","libraries":[{"refId":"constants"},{"refId":"sqljocky"},{"refId":"utils"}],"description":"Dart System Libraries"}
+{"name":"dart:","description":"Dart System Libraries","libraries":[{"refId":"constants"},{"name":"package:crypto/crypto.dart","refId":"crypto"},{"refId":"list_writer"},{"refId":"results"},{"refId":"sqljocky"},{"name":"package:unmodifiable_collection/unmodifiable_collection.dart","refId":"unmodifiable_collection"},{"refId":"utils"}],"revision":"0","dependencies":[]}
