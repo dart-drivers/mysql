@@ -1,0 +1,364 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>ListWriter class / list_writer Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="list_writer" data-type="ListWriter">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../list_writer.html">list_writer</a> &rsaquo; <a href="../list_writer/ListWriter.html">ListWriter</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>ListWriter</strong>
+          class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>This provides methods to read and write strings, lists and
+various sized integers on a buffer (implemented as an integer list).</p>
+<p>The ints in the backing list must all be 8-bit values. If larger values are
+entered, behaviour is undefined.</p>
+<p>As per mysql spec, numbers here are all unsigned.
+Which makes things much easier.</p>
+<pre class="source">
+class ListWriter {
+ final Logger log;
+
+ final List&lt;int&gt; _list;
+ 
+ List&lt;int&gt; get list =&gt; _list;
+ 
+ /**
+  * Creates a [ListWriter] with the given [list] as backing storage
+  */
+ ListWriter(List&lt;int&gt; list) : _list = list,
+                                   log = new Logger("Buffer");
+ 
+ /**
+  * Writes up to [count] bytes to the [socket] from the buffer.
+  * Returns the number of bytes written.
+  */
+ int writeToSocket(RawSocket socket, int start, int count) {
+   return socket.write(_list, start, count);
+ }
+ 
+ /**
+  * Adds the [value] to the list;
+  */
+ void add(value) {
+   _list.add(value);
+ }
+ 
+ /**
+  * Returns the size of the buffer
+  */
+ int get length =&gt; _list.length;
+ 
+ /**
+  * Fills the next [numberOfBytes] with the given [value]
+  */
+ void fill(int numberOfBytes, int value) {
+   while (numberOfBytes &gt; 0) {
+     writeByte(value);
+     numberOfBytes--;
+   }
+ }
+ 
+ /**
+  * Writes a null terminated list of ints from the buffer. The given [list]
+  * should not contain the terminating zero.
+  */ 
+ void writeNullTerminatedList(List&lt;int&gt; list) {
+   writeList(list);
+   writeByte(0);
+ }
+ 
+ /**
+  * Will write a length coded binary value, once implemented!
+  */
+ void writeLengthCodedBinary(int value) {
+   if (value &lt; 251) {
+     writeByte(value);
+     return;
+   }
+   if (value &lt; (2 &lt;&lt; 15)) {
+     writeByte(0xfc);
+     _writeUint16(value);
+     return;
+   }
+   if (value &lt; (2 &lt;&lt; 23)) {
+     writeByte(0xfd);
+     _writeUint24(value);
+     return;
+   }
+   if (value &lt; (2 &lt;&lt; 63)) {
+     writeByte(0xfe);
+     _writeUint64(value);
+   }
+ }
+ 
+ /**
+  * Writes a single [byte] to the buffer.
+  */ 
+ void writeByte(int byte) {
+   _list.add(byte);
+ }
+ 
+ /**
+  * Writes a 16 bit [integer] to the buffer.
+  */
+ void _writeUint16(int integer) {
+   _list.add(integer &amp; 0xFF);
+   _list.add(integer &gt;&gt; 8 &amp; 0xFF);
+ }
+
+ /**
+  * Writes a 24 bit [integer] to the buffer.
+  */
+ void _writeUint24(int integer) {
+   _list.add(integer &amp; 0xFF);
+   _list.add(integer &gt;&gt; 8 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 16 &amp; 0xFF);
+ }
+
+ /**
+  * Writes a 32 bit [integer] to the buffer.
+  */
+ void _writeUint32(int integer) {
+   _list.add(integer &amp; 0xFF);
+   _list.add(integer &gt;&gt; 8 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 16 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 24 &amp; 0xFF);
+ }
+
+ /**
+  * Writes a 64 bit [integer] to the buffer.
+  */
+ void _writeUint64(int integer) {
+   _list.add(integer &amp; 0xFF);
+   _list.add(integer &gt;&gt; 8 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 16 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 24 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 32 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 40 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 48 &amp; 0xFF);
+   _list.add(integer &gt;&gt; 56 &amp; 0xFF);
+ }
+
+ /**
+  * Writes the give [list] of bytes to the buffer.
+  */
+ void writeList(List&lt;int&gt; list) {
+   _list.addAll(list);
+ }
+}
+</pre>
+</div>
+<div>
+<h3>Constructors</h3>
+<div class="method"><h4 id="">
+<button class="show-code">Code</button>
+new <strong>ListWriter</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; list) <a class="anchor-link" href="#"
+              title="Permalink to ListWriter.ListWriter">#</a></h4>
+<div class="doc">
+<p>Creates a <a class="crossref" href="../list_writer/ListWriter.html">ListWriter</a> with the given 
+<span class="param">list</span> as backing storage</p>
+<pre class="source">
+ListWriter(List&lt;int&gt; list) : _list = list,
+                                 log = new Logger("Buffer");
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="length">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>length</strong> <a class="anchor-link"
+            href="#length"
+            title="Permalink to ListWriter.length">#</a>
+        </h4>
+        <div class="doc">
+<p>Returns the size of the buffer</p>
+<pre class="source">
+int get length =&gt; _list.length;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="list">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt;         <strong>list</strong> <a class="anchor-link"
+            href="#list"
+            title="Permalink to ListWriter.list">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+List&lt;int&gt; get list =&gt; _list;
+</pre>
+</div>
+</div>
+<div class="field"><h4 id="log">
+<button class="show-code">Code</button>
+final Logger         <strong>log</strong> <a class="anchor-link"
+            href="#log"
+            title="Permalink to ListWriter.log">#</a>
+        </h4>
+        <div class="doc">
+<pre class="source">
+final Logger log
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+<button class="show-code">Code</button>
+void <strong>add</strong>(value) <a class="anchor-link" href="#add"
+              title="Permalink to ListWriter.add">#</a></h4>
+<div class="doc">
+<p>Adds the 
+<span class="param">value</span> to the list;</p>
+<pre class="source">
+void add(value) {
+ _list.add(value);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="fill">
+<button class="show-code">Code</button>
+void <strong>fill</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> numberOfBytes, <a href="http://api.dartlang.org/dart_core/int.html">int</a> value) <a class="anchor-link" href="#fill"
+              title="Permalink to ListWriter.fill">#</a></h4>
+<div class="doc">
+<p>Fills the next 
+<span class="param">numberOfBytes</span> with the given 
+<span class="param">value</span></p>
+<pre class="source">
+void fill(int numberOfBytes, int value) {
+ while (numberOfBytes &gt; 0) {
+   writeByte(value);
+   numberOfBytes--;
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="writeByte">
+<button class="show-code">Code</button>
+void <strong>writeByte</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> byte) <a class="anchor-link" href="#writeByte"
+              title="Permalink to ListWriter.writeByte">#</a></h4>
+<div class="doc">
+<p>Writes a single 
+<span class="param">byte</span> to the buffer.</p>
+<pre class="source">
+void writeByte(int byte) {
+ _list.add(byte);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="writeLengthCodedBinary">
+<button class="show-code">Code</button>
+void <strong>writeLengthCodedBinary</strong>(<a href="http://api.dartlang.org/dart_core/int.html">int</a> value) <a class="anchor-link" href="#writeLengthCodedBinary"
+              title="Permalink to ListWriter.writeLengthCodedBinary">#</a></h4>
+<div class="doc">
+<p>Will write a length coded binary value, once implemented!</p>
+<pre class="source">
+void writeLengthCodedBinary(int value) {
+ if (value &lt; 251) {
+   writeByte(value);
+   return;
+ }
+ if (value &lt; (2 &lt;&lt; 15)) {
+   writeByte(0xfc);
+   _writeUint16(value);
+   return;
+ }
+ if (value &lt; (2 &lt;&lt; 23)) {
+   writeByte(0xfd);
+   _writeUint24(value);
+   return;
+ }
+ if (value &lt; (2 &lt;&lt; 63)) {
+   writeByte(0xfe);
+   _writeUint64(value);
+ }
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="writeList">
+<button class="show-code">Code</button>
+void <strong>writeList</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; list) <a class="anchor-link" href="#writeList"
+              title="Permalink to ListWriter.writeList">#</a></h4>
+<div class="doc">
+<p>Writes the give 
+<span class="param">list</span> of bytes to the buffer.</p>
+<pre class="source">
+void writeList(List&lt;int&gt; list) {
+ _list.addAll(list);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="writeNullTerminatedList">
+<button class="show-code">Code</button>
+void <strong>writeNullTerminatedList</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; list) <a class="anchor-link" href="#writeNullTerminatedList"
+              title="Permalink to ListWriter.writeNullTerminatedList">#</a></h4>
+<div class="doc">
+<p>Writes a null terminated list of ints from the buffer. The given 
+<span class="param">list</span>
+should not contain the terminating zero.</p>
+<pre class="source">
+void writeNullTerminatedList(List&lt;int&gt; list) {
+ writeList(list);
+ writeByte(0);
+}
+</pre>
+</div>
+</div>
+<div class="method"><h4 id="writeToSocket">
+<button class="show-code">Code</button>
+<a href="http://api.dartlang.org/dart_core/int.html">int</a> <strong>writeToSocket</strong>(<a href="http://api.dartlang.org/dart_io/RawSocket.html">RawSocket</a> socket, <a href="http://api.dartlang.org/dart_core/int.html">int</a> start, <a href="http://api.dartlang.org/dart_core/int.html">int</a> count) <a class="anchor-link" href="#writeToSocket"
+              title="Permalink to ListWriter.writeToSocket">#</a></h4>
+<div class="doc">
+<p>Writes up to 
+<span class="param">count</span> bytes to the 
+<span class="param">socket</span> from the buffer.
+Returns the number of bytes written.</p>
+<pre class="source">
+int writeToSocket(RawSocket socket, int start, int count) {
+ return socket.write(_list, start, count);
+}
+</pre>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-11-14 23:46:22.518</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        

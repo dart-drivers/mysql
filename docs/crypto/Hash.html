@@ -1,0 +1,122 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>Hash abstract class / crypto Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="crypto" data-type="Hash">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../crypto.html">crypto</a> &rsaquo; <a href="../crypto/Hash.html">Hash</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>Hash</strong>
+          abstract class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Interface for cryptographic hash functions.</p>
+<p>The <a class="crossref" href="../crypto/Hash.html#add">add</a> method is used to add data to the hash. The <a class="crossref" href="../crypto/Hash.html#close">close</a> method
+is used to extract the message digest.</p>
+<p>Once the <a class="crossref" href="../crypto/Hash.html#close">close</a> method has been called no more data can be added using the
+<a class="crossref" href="../crypto/Hash.html#add">add</a> method. If <a class="crossref" href="../crypto/Hash.html#add">add</a> is called after the first call to <a class="crossref" href="../crypto/Hash.html#close">close</a> a
+HashException is thrown.</p>
+<p>If multiple instances of a given Hash is needed the <a class="crossref" href="../crypto/Hash.html#newInstance">newInstance</a>
+method can provide a new instance.</p>
+<pre class="source">
+abstract class Hash {
+ /**
+  * Add a list of bytes to the hash computation.
+  */
+ void add(List&lt;int&gt; data);
+
+ /**
+  * Finish the hash computation and extract the message digest as
+  * a list of bytes.
+  */
+ List&lt;int&gt; close();
+
+ /**
+  * Returns a new instance of this hash function.
+  */
+ Hash newInstance();
+
+ /**
+  * Internal block size of the hash in bytes.
+  *
+  * This is exposed for use by the HMAC class which needs to know the
+  * block size for the [Hash] it is using.
+  */
+ int get blockSize;
+}
+</pre>
+</div>
+<div>
+<h3>Properties</h3>
+<div class="field"><h4 id="blockSize">
+<button class="show-code">Code</button>
+final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <strong>blockSize</strong> <a class="anchor-link"
+            href="#blockSize"
+            title="Permalink to Hash.blockSize">#</a>
+        </h4>
+        <div class="doc">
+<p>Internal block size of the hash in bytes.</p>
+<p>This is exposed for use by the HMAC class which needs to know the
+block size for the <a class="crossref" href="../crypto/Hash.html">Hash</a> it is using.</p>
+<pre class="source">
+int get blockSize;
+</pre>
+</div>
+</div>
+</div>
+<div>
+<h3>Methods</h3>
+<div class="method"><h4 id="add">
+abstract void <strong>add</strong>(<a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; data) <a class="anchor-link" href="#add"
+              title="Permalink to Hash.add">#</a></h4>
+<div class="doc">
+<p>Add a list of bytes to the hash computation.</p>
+</div>
+</div>
+<div class="method"><h4 id="close">
+abstract <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;<a href="http://api.dartlang.org/dart_core/int.html">int</a>&gt; <strong>close</strong>() <a class="anchor-link" href="#close"
+              title="Permalink to Hash.close">#</a></h4>
+<div class="doc">
+<p>Finish the hash computation and extract the message digest as
+a list of bytes.</p>
+</div>
+</div>
+<div class="method"><h4 id="newInstance">
+abstract <a href="../crypto/Hash.html">Hash</a> <strong>newInstance</strong>() <a class="anchor-link" href="#newInstance"
+              title="Permalink to Hash.newInstance">#</a></h4>
+<div class="doc">
+<p>Returns a new instance of this hash function.</p>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-11-14 23:46:22.499</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
