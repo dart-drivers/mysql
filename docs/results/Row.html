@@ -32,8 +32,11 @@
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
-<p>A row of data.</p>
+<p>A row of data. Fields can be retrieved by index, or by name.</p>
+<p>When retrieving a field by name, only fields which are valid Dart
+identifiers, and which aren't part of the List object, can be used.</p>
 <pre class="source">
+@proxy
 abstract class Row extends ListBase&lt;dynamic&gt; {
 }
 </pre>
@@ -1404,7 +1407,7 @@ Iterable&lt;E&gt; where(bool test(E element)) =&gt; new WhereIterable&lt;E&gt;(t
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 00:00:40.048</div>
+          <div>This page was generated at 2013-11-15 13:28:28.599</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
