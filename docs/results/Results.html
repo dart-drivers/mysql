@@ -33,6 +33,10 @@
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
 <p>Holds query results.</p>
+<p>If the query was an insert statement, the id of the inserted row is in <a class="crossref" href="../results/Results.html#insertId">insertId</a>.</p>
+<p>If the query was an update statement, the number of affected rows is in <a class="crossref" href="../results/Results.html#affectedRows">affectedRows</a>.</p>
+<p>If the query was a select statement, the stream contains the row results and
+the <a class="crossref" href="../results/Results.html#fields">fields</a> are also available.</p>
 <pre class="source">
 abstract class Results implements Stream&lt;Row&gt; {
  /**
@@ -1036,7 +1040,7 @@ Stream&lt;T&gt; where(bool test(T event)) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 13:28:28.503</div>
+          <div>This page was generated at 2013-11-15 22:34:37.091</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

@@ -32,14 +32,20 @@
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
 <div class="doc">
+<p>An exception which is returned by the MySQL server.</p>
 <pre class="source">
 class MySqlException implements Exception {
  int _errorNumber;
  String _sqlState;
  String _message;
  
+ /// The MySQL error number
  int get errorNumber =&gt; _errorNumber;
+ 
+ /// A five character ANSI SQLSTATE value
  String get sqlState =&gt; _sqlState;
+ 
+ /// A textual description of the error
  String get message =&gt; _message;
  
  /**
@@ -69,6 +75,7 @@ final <a href="http://api.dartlang.org/dart_core/int.html">int</a>         <stro
             title="Permalink to MySqlException.errorNumber">#</a>
         </h4>
         <div class="doc">
+<p>The MySQL error number</p>
 <pre class="source">
 int get errorNumber =&gt; _errorNumber;
 </pre>
@@ -81,6 +88,7 @@ final <a href="http://api.dartlang.org/dart_core/String.html">String</a>        
             title="Permalink to MySqlException.message">#</a>
         </h4>
         <div class="doc">
+<p>A textual description of the error</p>
 <pre class="source">
 String get message =&gt; _message;
 </pre>
@@ -93,6 +101,7 @@ final <a href="http://api.dartlang.org/dart_core/String.html">String</a>        
             title="Permalink to MySqlException.sqlState">#</a>
         </h4>
         <div class="doc">
+<p>A five character ANSI SQLSTATE value</p>
 <pre class="source">
 String get sqlState =&gt; _sqlState;
 </pre>
@@ -119,7 +128,7 @@ String toString() =&gt; "Error $_errorNumber ($_sqlState): $_message";
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 13:28:28.637</div>
+          <div>This page was generated at 2013-11-15 22:34:37.363</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

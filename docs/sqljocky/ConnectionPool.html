@@ -37,7 +37,7 @@ a free connection it will be used, otherwise the query is queued until a connect
 free. </p>
 <pre class="source">
 class ConnectionPool extends Object with _ConnectionHelpers implements QueriableConnection {
- final Logger log;
+ final Logger _log;
 
  final String _host;
  final int _port;
@@ -70,27 +70,27 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
        _password = password,
        _db = db,
        _max = max,
-       log = new Logger("ConnectionPool");
+       _log = new Logger("ConnectionPool");
  
  Future&lt;_Connection&gt; _getConnection() {
-   log.finest("Getting a connection");
+   _log.finest("Getting a connection");
    var c = new Completer&lt;_Connection&gt;();
 
-   if (log.isLoggable(Level.FINEST)) {
+   if (_log.isLoggable(Level.FINEST)) {
      var inUseCount = _pool.fold(0, (value, cnx) =&gt; cnx.inUse ? value + 1 : value);
-     log.finest("Number of in-use connections: $inUseCount");
+     _log.finest("Number of in-use connections: $inUseCount");
    }
    
    var cnx = _pool.firstWhere((aConnection) =&gt; !aConnection.inUse, orElse: () =&gt; null);
    if (cnx != null) {
-     log.finest("Using open pooled cnx#${cnx.number}");
+     _log.finest("Using open pooled cnx#${cnx.number}");
      cnx.use();
      c.complete(cnx);
    } else if (_pool.length &lt; _max) {
-     log.finest("Creating new pooled cnx#${_pool.length}");
+     _log.finest("Creating new pooled cnx#${_pool.length}");
      _createConnection(c);
    } else {
-     log.finest("Waiting for an available connection");
+     _log.finest("Waiting for an available connection");
      _pendingConnections.add(c);
    }
    return c.future;
@@ -109,7 +109,7 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
        db: _db)
      .then((_) {
        cnx.autoRelease = true;
-       log.finest("Logged in on cnx#${cnx.number}");
+       _log.finest("Logged in on cnx#${cnx.number}");
        c.complete(cnx);
      })
      .catchError((e) {
@@ -134,17 +134,17 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
   */
  _newReuseConnection(_Connection cnx) {
    if (!_pool.contains(cnx)) {
-     log.warning("reuseConnection called for unmanaged connection");
+     _log.warning("reuseConnection called for unmanaged connection");
      return;
    }
    
    if (cnx.inUse) {
-     log.finest("cnx#${cnx.number} already reused");
+     _log.finest("cnx#${cnx.number} already reused");
      return;
    }
    
    if (_pendingConnections.length &gt; 0) {
-     log.finest("Reusing cnx#${cnx.number} for a queued operation");
+     _log.finest("Reusing cnx#${cnx.number} for a queued operation");
      var c = _pendingConnections.removeFirst();
      cnx.use();
      c.complete(cnx);
@@ -182,20 +182,16 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
    }
  }
 
- /**
-  * Executes the [sql] query as soon as a connection is available, returning
-  * a [Future&lt;Results&gt;] that completes when the results start to become available.
-  */
  Future&lt;Results&gt; query(String sql) {
-   log.info("Running query: ${sql}");
+   _log.info("Running query: ${sql}");
 
    return _getConnection()
      .then((cnx) {
        var c = new Completer&lt;Results&gt;();
-       log.fine("Got cnx#${cnx.number} for query");
+       _log.fine("Got cnx#${cnx.number} for query");
        cnx.processHandler(new _QueryStreamHandler(sql))
          .then((results) {
-         log.fine("Got query results on #${cnx.number} for: ${sql}");
+         _log.fine("Got query results on #${cnx.number} for: ${sql}");
            c.complete(results);
          })
          .catchError((e) {
@@ -209,13 +205,13 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
   * Pings the server. Returns a [Future] that completes when the server replies.
   */
  Future ping() {
-   log.info("Pinging server");
+   _log.info("Pinging server");
    
    return _getConnection()
      .then((cnx) {
        return cnx.processHandler(new _PingHandler())
          .then((x) {
-           log.fine("Pinged");
+           _log.fine("Pinged");
            return x;
          });
      });
@@ -226,14 +222,14 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
   * when the server replies.
   */
  Future debug() {
-   log.info("Sending debug message");
+   _log.info("Sending debug message");
    
    return _getConnection()
      .then((cnx) {
        var c = new Completer();
        cnx.processHandler(new _DebugHandler())
          .then((x) {
-           log.fine("Message sent");
+           _log.fine("Message sent");
            return x;
          })
          .catchError((e) {
@@ -244,12 +240,12 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
  }
  
  void _closeQuery(Query q, bool retain) {
-   log.finest("Closing query: ${q.sql}");
+   _log.finest("Closing query: ${q.sql}");
    for (var cnx in _pool) {
      var preparedQuery = cnx.removePreparedQueryFromCache(q.sql);
      if (preparedQuery != null) {
        _waitUntilReady(cnx).then((_) {
-         log.finest("Connection ready - closing query: ${q.sql}");
+         _log.finest("Connection ready - closing query: ${q.sql}");
          var handler = new _CloseStatementHandler(preparedQuery.statementHandlerId);
          cnx.autoRelease = !retain;
          cnx.processHandler(handler, noResponse: true);
@@ -273,32 +269,28 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
    return c.future;
  }
 
- /**
-  * Prepares a query with the given [sql]. Returns a [Future&lt;Query&gt;] that
-  * completes when the query has been prepared.
-  */
  Future&lt;Query&gt; prepare(String sql) {
    var query = new Query._internal(this, sql);
    return query._prepare(false)
      .then((preparedQuery) {
-       log.info("Got prepared query");
+       _log.info("Got prepared query");
        return query;
      });
  }
  
  /**
-  * Starts a transaction. Returns a [Future&lt;Transaction&gt;] that completes
+  * Starts a transaction. Returns a [Future]&lt;[Transaction]&gt; that completes
   * when the transaction has been started. If [consistent] is true, the
   * transaction is started with consistent snapshot. A transaction holds
   * onto its connection until closed (committed or rolled back). You
-  * must use this method rather than query('start transaction') otherwise
+  * must use this method rather than `query('start transaction')` otherwise
   * subsequent queries may get executed on other connections which are not
   * in the transaction. Likewise, you must use the [Transaction.commit]
   * and [Transaction.rollback] methods to commit and roll back, otherwise
   * the connection will not be released.
   */
  Future&lt;Transaction&gt; startTransaction({bool consistent: false}) {
-   log.info("Starting transaction");
+   _log.info("Starting transaction");
    
    return _getConnection()
      .then((cnx) {
@@ -312,7 +304,7 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
        }
        cnx.processHandler(new _QueryStreamHandler(sql))
          .then((results) {
-           log.fine("Transaction started on cnx#${cnx.number}");
+           _log.fine("Transaction started on cnx#${cnx.number}");
            var transaction = new Transaction._internal(cnx, this);
            c.complete(transaction);
          })
@@ -323,11 +315,6 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
      });
  }
  
- /**
-  * Prepares and executes the [sql] with the given list of [parameters].
-  * Returns a [Future&lt;Results&gt;] that completes when the query has been
-  * executed.
-  */
  Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
    return prepare(sql).then((query) {
      return query.execute(parameters);
@@ -380,22 +367,7 @@ ConnectionPool({String host: 'localhost', int port: 3306, String user,
      _password = password,
      _db = db,
      _max = max,
-     log = new Logger("ConnectionPool");
-</pre>
-</div>
-</div>
-</div>
-<div>
-<h3>Properties</h3>
-<div class="field"><h4 id="log">
-<button class="show-code">Code</button>
-final Logger         <strong>log</strong> <a class="anchor-link"
-            href="#log"
-            title="Permalink to ConnectionPool.log">#</a>
-        </h4>
-        <div class="doc">
-<pre class="source">
-final Logger log
+     _log = new Logger("ConnectionPool");
 </pre>
 </div>
 </div>
@@ -429,14 +401,14 @@ void close() {
 when the server replies.</p>
 <pre class="source">
 Future debug() {
- log.info("Sending debug message");
+ _log.info("Sending debug message");
  
  return _getConnection()
    .then((cnx) {
      var c = new Completer();
      cnx.processHandler(new _DebugHandler())
        .then((x) {
-         log.fine("Message sent");
+         _log.fine("Message sent");
          return x;
        })
        .catchError((e) {
@@ -456,13 +428,13 @@ Future debug() {
 <p>Pings the server. Returns a <a class="crossref" href="../dart_async/Future.html">Future</a> that completes when the server replies.</p>
 <pre class="source">
 Future ping() {
- log.info("Pinging server");
+ _log.info("Pinging server");
  
  return _getConnection()
    .then((cnx) {
      return cnx.processHandler(new _PingHandler())
        .then((x) {
-         log.fine("Pinged");
+         _log.fine("Pinged");
          return x;
        });
    });
@@ -475,15 +447,17 @@ Future ping() {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
               title="Permalink to ConnectionPool.prepare">#</a></h4>
 <div class="doc">
+<div class="inherited">
 <p>Prepares a query with the given 
 <span class="param">sql</span>. Returns a [Future<Query>] that
 completes when the query has been prepared.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
 <pre class="source">
 Future&lt;Query&gt; prepare(String sql) {
  var query = new Query._internal(this, sql);
  return query._prepare(false)
    .then((preparedQuery) {
-     log.info("Got prepared query");
+     _log.info("Got prepared query");
      return query;
    });
 }
@@ -495,11 +469,13 @@ Future&lt;Query&gt; prepare(String sql) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a> parameters) <a class="anchor-link" href="#prepareExecute"
               title="Permalink to ConnectionPool.prepareExecute">#</a></h4>
 <div class="doc">
+<div class="inherited">
 <p>Prepares and executes the 
 <span class="param">sql</span> with the given list of 
 <span class="param">parameters</span>.
-Returns a [Future<Results>] that completes when the query has been
+Returns a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes when the query has been
 executed.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
 <pre class="source">
 Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
  return prepare(sql).then((query) {
@@ -514,20 +490,22 @@ Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
               title="Permalink to ConnectionPool.query">#</a></h4>
 <div class="doc">
+<div class="inherited">
 <p>Executes the 
-<span class="param">sql</span> query as soon as a connection is available, returning
-a [Future<Results>] that completes when the results start to become available.</p>
+<span class="param">sql</span> query, returning a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes 
+when the results start to become available.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
 <pre class="source">
 Future&lt;Results&gt; query(String sql) {
- log.info("Running query: ${sql}");
+ _log.info("Running query: ${sql}");
 
  return _getConnection()
    .then((cnx) {
      var c = new Completer&lt;Results&gt;();
-     log.fine("Got cnx#${cnx.number} for query");
+     _log.fine("Got cnx#${cnx.number} for query");
      cnx.processHandler(new _QueryStreamHandler(sql))
        .then((results) {
-       log.fine("Got query results on #${cnx.number} for: ${sql}");
+       _log.fine("Got query results on #${cnx.number} for: ${sql}");
          c.complete(results);
        })
        .catchError((e) {
@@ -544,19 +522,19 @@ Future&lt;Results&gt; query(String sql) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Transaction.html">Transaction</a>&gt; <strong>startTransaction</strong>({<a href="http://api.dartlang.org/dart_core/bool.html">bool</a> consistent: false}) <a class="anchor-link" href="#startTransaction"
               title="Permalink to ConnectionPool.startTransaction">#</a></h4>
 <div class="doc">
-<p>Starts a transaction. Returns a [Future<Transaction>] that completes
+<p>Starts a transaction. Returns a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../sqljocky/Transaction.html">Transaction</a>> that completes
 when the transaction has been started. If 
 <span class="param">consistent</span> is true, the
 transaction is started with consistent snapshot. A transaction holds
 onto its connection until closed (committed or rolled back). You
-must use this method rather than query('start transaction') otherwise
+must use this method rather than <code>query('start transaction')</code> otherwise
 subsequent queries may get executed on other connections which are not
 in the transaction. Likewise, you must use the <a class="crossref" href="../sqljocky/Transaction.html#commit">Transaction.commit</a>
 and <a class="crossref" href="../sqljocky/Transaction.html#rollback">Transaction.rollback</a> methods to commit and roll back, otherwise
 the connection will not be released.</p>
 <pre class="source">
 Future&lt;Transaction&gt; startTransaction({bool consistent: false}) {
- log.info("Starting transaction");
+ _log.info("Starting transaction");
  
  return _getConnection()
    .then((cnx) {
@@ -570,7 +548,7 @@ Future&lt;Transaction&gt; startTransaction({bool consistent: false}) {
      }
      cnx.processHandler(new _QueryStreamHandler(sql))
        .then((results) {
-         log.fine("Transaction started on cnx#${cnx.number}");
+         _log.fine("Transaction started on cnx#${cnx.number}");
          var transaction = new Transaction._internal(cnx, this);
          c.complete(transaction);
        })
@@ -588,7 +566,7 @@ Future&lt;Transaction&gt; startTransaction({bool consistent: false}) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 13:28:28.684</div>
+          <div>This page was generated at 2013-11-15 22:34:37.451</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

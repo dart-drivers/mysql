@@ -155,6 +155,11 @@ Future commit() {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
               title="Permalink to Transaction.prepare">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Prepares a query with the given 
+<span class="param">sql</span>. Returns a [Future<Query>] that
+completes when the query has been prepared.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
 <pre class="source">
 Future&lt;Query&gt; prepare(String sql) {
  _checkFinished();
@@ -169,6 +174,13 @@ Future&lt;Query&gt; prepare(String sql) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a> parameters) <a class="anchor-link" href="#prepareExecute"
               title="Permalink to Transaction.prepareExecute">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Prepares and executes the 
+<span class="param">sql</span> with the given list of 
+<span class="param">parameters</span>.
+Returns a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes when the query has been
+executed.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
 <pre class="source">
 Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
  _checkFinished();
@@ -190,6 +202,11 @@ Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
 <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
               title="Permalink to Transaction.query">#</a></h4>
 <div class="doc">
+<div class="inherited">
+<p>Executes the 
+<span class="param">sql</span> query, returning a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes 
+when the results start to become available.</p>
+<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
 <pre class="source">
 Future&lt;Results&gt; query(String sql) {
  _checkFinished();
@@ -228,7 +245,7 @@ Future rollback() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 13:28:28.660</div>
+          <div>This page was generated at 2013-11-15 22:34:37.398</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
