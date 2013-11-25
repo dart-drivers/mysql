@@ -2,7 +2,7 @@
         <html>
         <head>
                 <meta charset="utf-8">
-        <title>Transaction class / sqljocky Library / Dart Documentation</title>
+        <title>Transaction abstract class / sqljocky Library / Dart Documentation</title>
         <link rel="stylesheet" type="text/css"
             href="../styles.css">
         <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
@@ -27,7 +27,7 @@
 </div>
 <div class="content">
         <h2><strong>Transaction</strong>
-          class
+          abstract class
         </h2>
         
 <button id="show-inherited" class="show-inherited">Hide inherited</button>
@@ -37,207 +37,69 @@ is started it retains its connection until the transaction is committed or rolle
 back. You must use the <a class="crossref" href="../sqljocky/Transaction.html#commit">commit</a> and <a class="crossref" href="../sqljocky/Transaction.html#rollback">rollback</a> methods to do this, otherwise
 the connection will not be released back to the pool.</p>
 <pre class="source">
-class Transaction extends Object with _ConnectionHelpers implements QueriableConnection {
- _Connection _cnx;
- ConnectionPool _pool;
- bool _finished;
- 
- // TODO: maybe give the connection a link to its transaction?
-
- Transaction._internal(this._cnx, this._pool) : _finished = false;
- 
+abstract class Transaction extends QueriableConnection {
  /**
   * Commits the transaction and released the connection. An error will be thrown
   * if any queries are executed after calling commit.
   */
- Future commit() {
-   _checkFinished();
-   _finished = true;
- 
-   var handler = new _QueryStreamHandler("commit");
-   return _cnx.processHandler(handler)
-     .then((results) {
-       _cnx.inTransaction = false;
-       _cnx.release();
-       _pool._newReuseConnection(_cnx);
-       return results;
-     });
- }
- 
+ Future commit();
+
  /**
   * Rolls back the transaction and released the connection. An error will be thrown
   * if any queries are executed after calling rollback.
   */
- Future rollback() {
-   _checkFinished();
-   _finished = true;
- 
-   var handler = new _QueryStreamHandler("rollback");
-   return _cnx.processHandler(handler)
-     .then((results) {
-       _cnx.inTransaction = false;
-       _cnx.release();
-       _pool._newReuseConnection(_cnx);
-       return results;
-     });
- }
-
- Future&lt;Results&gt; query(String sql) {
-   _checkFinished();
-   var handler = new _QueryStreamHandler(sql);
-   return _cnx.processHandler(handler);
- }
- 
- //TODO: should the query get closed when the transaction is closed?
- //TODO: it isn't valid any more, at least
- Future&lt;Query&gt; prepare(String sql) {
-   _checkFinished();
-   var query = new Query._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
-   return query._prepare(true).then((preparedQuery) =&gt; new Future.value(query));
- }
- 
- Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
-   _checkFinished();
-   return prepare(sql)
-     .then((query) {
-       return query.execute(parameters)
-         .then((results) {
-           //TODO is it right to close here? Query might still be running
-           query.close();
-           return new Future.value(results);
-         });
-     });
- }
-
- void _checkFinished() {
-   if (_finished) {
-     throw new StateError("Transaction has already finished");
-   }
- }
-
- _removeConnection(_Connection cnx) {
-   _pool._removeConnection(cnx);
- }
+ Future rollback();
 }
 </pre>
 </div>
-<h3>Implements</h3>
+<h3>Extends</h3>
 <p>
-<span class="type-box"><span class="icon-class"></span><a href="../sqljocky/QueriableConnection.html">QueriableConnection</a></span></p>
+<span class="type-box"><span class="icon-class"></span><a href="../sqljocky/QueriableConnection.html">QueriableConnection</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>Transaction</strong></span></p>
 <div>
 <h3>Methods</h3>
 <div class="method"><h4 id="commit">
-<button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>commit</strong>() <a class="anchor-link" href="#commit"
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>commit</strong>() <a class="anchor-link" href="#commit"
               title="Permalink to Transaction.commit">#</a></h4>
 <div class="doc">
 <p>Commits the transaction and released the connection. An error will be thrown
 if any queries are executed after calling commit.</p>
-<pre class="source">
-Future commit() {
- _checkFinished();
- _finished = true;
-
- var handler = new _QueryStreamHandler("commit");
- return _cnx.processHandler(handler)
-   .then((results) {
-     _cnx.inTransaction = false;
-     _cnx.release();
-     _pool._newReuseConnection(_cnx);
-     return results;
-   });
-}
-</pre>
 </div>
 </div>
-<div class="method"><h4 id="prepare">
-<button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
+<div class="method inherited"><h4 id="prepare">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
               title="Permalink to Transaction.prepare">#</a></h4>
-<div class="doc">
-<div class="inherited">
+<div class="inherited-from">inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div><div class="doc">
 <p>Prepares a query with the given 
 <span class="param">sql</span>. Returns a [Future<Query>] that
 completes when the query has been prepared.</p>
-<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
-<pre class="source">
-Future&lt;Query&gt; prepare(String sql) {
- _checkFinished();
- var query = new Query._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
- return query._prepare(true).then((preparedQuery) =&gt; new Future.value(query));
-}
-</pre>
 </div>
 </div>
-<div class="method"><h4 id="prepareExecute">
-<button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a> parameters) <a class="anchor-link" href="#prepareExecute"
+<div class="method inherited"><h4 id="prepareExecute">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;dynamic&gt; parameters) <a class="anchor-link" href="#prepareExecute"
               title="Permalink to Transaction.prepareExecute">#</a></h4>
-<div class="doc">
-<div class="inherited">
+<div class="inherited-from">inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div><div class="doc">
 <p>Prepares and executes the 
 <span class="param">sql</span> with the given list of 
 <span class="param">parameters</span>.
 Returns a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes when the query has been
 executed.</p>
-<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
-<pre class="source">
-Future&lt;Results&gt; prepareExecute(String sql, List parameters) {
- _checkFinished();
- return prepare(sql)
-   .then((query) {
-     return query.execute(parameters)
-       .then((results) {
-         //TODO is it right to close here? Query might still be running
-         query.close();
-         return new Future.value(results);
-       });
-   });
-}
-</pre>
 </div>
 </div>
-<div class="method"><h4 id="query">
-<button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
+<div class="method inherited"><h4 id="query">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
               title="Permalink to Transaction.query">#</a></h4>
-<div class="doc">
-<div class="inherited">
+<div class="inherited-from">inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div><div class="doc">
 <p>Executes the 
 <span class="param">sql</span> query, returning a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes 
 when the results start to become available.</p>
-<div class="docs-inherited-from">docs inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div></div>
-<pre class="source">
-Future&lt;Results&gt; query(String sql) {
- _checkFinished();
- var handler = new _QueryStreamHandler(sql);
- return _cnx.processHandler(handler);
-}
-</pre>
 </div>
 </div>
 <div class="method"><h4 id="rollback">
-<button class="show-code">Code</button>
-<a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>rollback</strong>() <a class="anchor-link" href="#rollback"
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>rollback</strong>() <a class="anchor-link" href="#rollback"
               title="Permalink to Transaction.rollback">#</a></h4>
 <div class="doc">
 <p>Rolls back the transaction and released the connection. An error will be thrown
 if any queries are executed after calling rollback.</p>
-<pre class="source">
-Future rollback() {
- _checkFinished();
- _finished = true;
-
- var handler = new _QueryStreamHandler("rollback");
- return _cnx.processHandler(handler)
-   .then((results) {
-     _cnx.inTransaction = false;
-     _cnx.release();
-     _pool._newReuseConnection(_cnx);
-     return results;
-   });
-}
-</pre>
 </div>
 </div>
 </div>
@@ -245,7 +107,7 @@ Future rollback() {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 22:34:37.398</div>
+          <div>This page was generated at 2013-11-25 14:57:07.446</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>

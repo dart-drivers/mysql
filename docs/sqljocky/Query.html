@@ -139,11 +139,12 @@ class Query extends Object with _ConnectionHelpers {
      });
  }
  
- Future&lt;Results&gt; _execute(_PreparedQuery preparedQuery, List values) {
+ Future&lt;Results&gt; _execute(_PreparedQuery preparedQuery, List values,
+     {bool retainConnection: false}) {
    _log.finest("About to execute");
    var c = new Completer&lt;Results&gt;();
    var handler = new _ExecuteQueryHandler(preparedQuery, _executed, values);
-   preparedQuery.cnx.autoRelease = true;
+   preparedQuery.cnx.autoRelease = !retainConnection;
    preparedQuery.cnx.processHandler(handler)
      .then((results) {
        _log.finest("Prepared query got results");
@@ -171,13 +172,14 @@ class Query extends Object with _ConnectionHelpers {
        
        executeQuery(int i) {
          _log.fine("Executing query, loop $i");
-         _execute(preparedQuery, parameters[i])
+         _execute(preparedQuery, parameters[i], retainConnection: true)
            .then((Results results) {
              _log.fine("Got results, loop $i");
              resultList.add(results);
              if (i &lt; parameters.length - 1) {
                executeQuery(i + 1);
              } else {
+               preparedQuery.cnx.release();
                c.complete(resultList);
              }
            })
@@ -274,13 +276,14 @@ Future&lt;List&lt;Results&gt;&gt; executeMulti(List&lt;List&gt; parameters) {
      
      executeQuery(int i) {
        _log.fine("Executing query, loop $i");
-       _execute(preparedQuery, parameters[i])
+       _execute(preparedQuery, parameters[i], retainConnection: true)
          .then((Results results) {
            _log.fine("Got results, loop $i");
            resultList.add(results);
            if (i &lt; parameters.length - 1) {
              executeQuery(i + 1);
            } else {
+             preparedQuery.cnx.release();
              c.complete(resultList);
            }
          })
@@ -301,7 +304,7 @@ Future&lt;List&lt;Results&gt;&gt; executeMulti(List&lt;List&gt; parameters) {
         <div class="clear"></div>
         </div>
         <div class="footer">
-          <div>This page was generated at 2013-11-15 22:34:37.385</div>
+          <div>This page was generated at 2013-11-25 14:57:07.426</div>
         </div>
         <script async src="../client-live-nav.js"></script>
         </body></html>
