@@ -1,0 +1,98 @@
+        <!DOCTYPE html>
+        <html>
+        <head>
+                <meta charset="utf-8">
+        <title>RetainedConnection abstract class / sqljocky Library / Dart Documentation</title>
+        <link rel="stylesheet" type="text/css"
+            href="../styles.css">
+        <link href="//fonts.googleapis.com/css?family=Open+Sans:400,600,700,800" rel="stylesheet" type="text/css">
+        <link rel="shortcut icon" href="../favicon.ico">
+        
+        </head>
+        <body data-library="sqljocky" data-type="RetainedConnection">
+        <div class="page">
+        <div class="header">
+          <a href="../index.html"><div class="logo"></div></a>
+          <a href="../index.html">Dart Documentation</a>
+         &rsaquo; <a href="../sqljocky.html">sqljocky</a> &rsaquo; <a href="../sqljocky/RetainedConnection.html">RetainedConnection</a>        <div id="search-box">
+          <input type="search" name="q" id="q" autocomplete="off"
+              class="search-input" placeholder="Search API">
+        </div>
+        
+      </div>
+      <div class="drop-down" id="drop-down"></div>
+      
+        <div class="nav">
+        
+</div>
+<div class="content">
+        <h2><strong>RetainedConnection</strong>
+          abstract class
+        </h2>
+        
+<button id="show-inherited" class="show-inherited">Hide inherited</button>
+<div class="doc">
+<p>Use <a class="crossref" href="../sqljocky/ConnectionPool.html#getConnection">ConnectionPool.getConnection</a> to get a connection to the database which
+isn't released after each query. When you have finished with the connection
+you must <a class="crossref" href="../sqljocky/RetainedConnection.html#release">release</a> it, otherwise it will never be available in the pool
+again. </p>
+<pre class="source">
+abstract class RetainedConnection extends QueriableConnection {
+ /**
+  * Releases the connection back to the connection pool.
+  */
+ Future release();
+}
+</pre>
+</div>
+<h3>Extends</h3>
+<p>
+<span class="type-box"><span class="icon-class"></span><a href="../sqljocky/QueriableConnection.html">QueriableConnection</a></span>&nbsp;&gt;&nbsp;<span class="type-box"><span class="icon-class"></span><strong>RetainedConnection</strong></span></p>
+<div>
+<h3>Methods</h3>
+<div class="method inherited"><h4 id="prepare">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../sqljocky/Query.html">Query</a>&gt; <strong>prepare</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#prepare"
+              title="Permalink to RetainedConnection.prepare">#</a></h4>
+<div class="inherited-from">inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div><div class="doc">
+<p>Prepares a query with the given 
+<span class="param">sql</span>. Returns a [Future<Query>] that
+completes when the query has been prepared.</p>
+</div>
+</div>
+<div class="method inherited"><h4 id="prepareExecute">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>prepareExecute</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql, <a href="http://api.dartlang.org/dart_core/List.html">List</a>&lt;dynamic&gt; parameters) <a class="anchor-link" href="#prepareExecute"
+              title="Permalink to RetainedConnection.prepareExecute">#</a></h4>
+<div class="inherited-from">inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div><div class="doc">
+<p>Prepares and executes the 
+<span class="param">sql</span> with the given list of 
+<span class="param">parameters</span>.
+Returns a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes when the query has been
+executed.</p>
+</div>
+</div>
+<div class="method inherited"><h4 id="query">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a>&lt;<a href="../results/Results.html">Results</a>&gt; <strong>query</strong>(<a href="http://api.dartlang.org/dart_core/String.html">String</a> sql) <a class="anchor-link" href="#query"
+              title="Permalink to RetainedConnection.query">#</a></h4>
+<div class="inherited-from">inherited from <a href="../sqljocky/QueriableConnection.html">QueriableConnection</a> </div><div class="doc">
+<p>Executes the 
+<span class="param">sql</span> query, returning a <a class="crossref" href="../dart_async/Future.html">Future</a>&lt;<a class="crossref" href="../results/Results.html">Results</a>> that completes 
+when the results start to become available.</p>
+</div>
+</div>
+<div class="method"><h4 id="release">
+abstract <a href="http://api.dartlang.org/dart_async/Future.html">Future</a> <strong>release</strong>() <a class="anchor-link" href="#release"
+              title="Permalink to RetainedConnection.release">#</a></h4>
+<div class="doc">
+<p>Releases the connection back to the connection pool.</p>
+</div>
+</div>
+</div>
+        </div>
+        <div class="clear"></div>
+        </div>
+        <div class="footer">
+          <div>This page was generated at 2013-11-25 14:57:07.433</div>
+        </div>
+        <script async src="../client-live-nav.js"></script>
+        </body></html>
+        
