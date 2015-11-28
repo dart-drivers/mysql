@@ -1,21 +1,32 @@
-part of sqljocky;
+library sqljocky.prepare_handler;
 
-class _PrepareHandler extends _Handler {
+import 'dart:convert';
+
+import 'package:logging/logging.dart';
+
+import '../../constants.dart';
+import '../buffer.dart';
+import '../mysql_protocol_error.dart';
+import '../handlers/handler.dart';
+import '../results/field_impl.dart';
+
+import 'prepared_query.dart';
+import 'prepare_ok_packet.dart';
+
+class PrepareHandler extends Handler {
   final String _sql;
-  _PrepareOkPacket _okPacket;
+  PrepareOkPacket _okPacket;
   int _parametersToRead;
   int _columnsToRead;
-  List<_FieldImpl> _parameters;
-  List<_FieldImpl> _columns;
+  List<FieldImpl> _parameters;
+  List<FieldImpl> _columns;
 
   String get sql => _sql;
-  _PrepareOkPacket get okPacket => _okPacket;
-  List<_FieldImpl> get parameters => _parameters;
-  List<_FieldImpl> get columns => _columns;
+  PrepareOkPacket get okPacket => _okPacket;
+  List<FieldImpl> get parameters => _parameters;
+  List<FieldImpl> get columns => _columns;
 
-  _PrepareHandler(String this._sql) {
-    log = new Logger("PrepareHandler");
-  }
+  PrepareHandler(String this._sql) : super(new Logger("PrepareHandler"));
 
   Buffer createRequest() {
     var encoded = UTF8.encode(_sql);
@@ -25,7 +36,7 @@ class _PrepareHandler extends _Handler {
     return buffer;
   }
 
-  _HandlerResponse processResponse(Buffer response) {
+  HandlerResponse processResponse(Buffer response) {
     log.fine("Prepare processing response");
     var packet = checkResponse(response, true);
     if (packet == null) {
@@ -34,35 +45,37 @@ class _PrepareHandler extends _Handler {
         if (response[0] == PACKET_EOF) {
           log.fine("EOF");
           if (_parametersToRead != 0) {
-            throw new MySqlProtocolError._(
+            throw createMySqlProtocolError(
                 "Unexpected EOF packet; was expecting another $_parametersToRead parameter(s)");
           }
         } else {
-          var fieldPacket = new _FieldImpl._(response);
+          var fieldPacket = new FieldImpl(response);
           log.fine("field packet: $fieldPacket");
-          _parameters[_okPacket.parameterCount - _parametersToRead] = fieldPacket;
+          _parameters[_okPacket.parameterCount - _parametersToRead] =
+              fieldPacket;
         }
         _parametersToRead--;
       } else if (_columnsToRead > -1) {
         if (response[0] == PACKET_EOF) {
           log.fine("EOF");
           if (_columnsToRead != 0) {
-            throw new MySqlProtocolError._("Unexpected EOF packet; was expecting another $_columnsToRead column(s)");
+            throw createMySqlProtocolError(
+                "Unexpected EOF packet; was expecting another $_columnsToRead column(s)");
           }
         } else {
-          var fieldPacket = new _FieldImpl._(response);
+          var fieldPacket = new FieldImpl(response);
           log.fine("field packet (column): $fieldPacket");
           _columns[_okPacket.columnCount - _columnsToRead] = fieldPacket;
         }
         _columnsToRead--;
       }
-    } else if (packet is _PrepareOkPacket) {
+    } else if (packet is PrepareOkPacket) {
       log.fine(packet.toString());
       _okPacket = packet;
       _parametersToRead = packet.parameterCount;
       _columnsToRead = packet.columnCount;
-      _parameters = new List<_FieldImpl>(_parametersToRead);
-      _columns = new List<_FieldImpl>(_columnsToRead);
+      _parameters = new List<FieldImpl>(_parametersToRead);
+      _columns = new List<FieldImpl>(_columnsToRead);
       if (_parametersToRead == 0) {
         _parametersToRead = -1;
       }
@@ -73,8 +86,9 @@ class _PrepareHandler extends _Handler {
 
     if (_parametersToRead == -1 && _columnsToRead == -1) {
       log.fine("finished");
-      return new _HandlerResponse(finished: true, result: new _PreparedQuery(this));
+      return new HandlerResponse(
+          finished: true, result: new PreparedQuery(this));
     }
-    return _HandlerResponse.notFinished;
+    return HandlerResponse.notFinished;
   }
 }
