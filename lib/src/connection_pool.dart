@@ -5,7 +5,9 @@ part of sqljocky;
  * a free connection it will be used, otherwise the query is queued until a connection is
  * free.
  */
-class ConnectionPool extends Object with _ConnectionHelpers implements QueriableConnection {
+class ConnectionPool extends Object
+    with _ConnectionHelpers
+    implements QueriableConnection {
   final Logger _log;
 
   final String _host;
@@ -70,11 +72,13 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
     var c = new Completer<_Connection>();
 
     if (_log.isLoggable(Level.FINEST)) {
-      var inUseCount = _pool.fold(0, (value, cnx) => cnx.inUse ? value + 1 : value);
+      var inUseCount =
+          _pool.fold(0, (value, cnx) => cnx.inUse ? value + 1 : value);
       _log.finest("Number of in-use connections: $inUseCount");
     }
 
-    var cnx = _pool.firstWhere((aConnection) => !aConnection.inUse, orElse: () => null);
+    var cnx = _pool.firstWhere((aConnection) => !aConnection.inUse,
+        orElse: () => null);
     if (cnx != null) {
       _log.finest("Using open pooled cnx#${cnx.number}");
       cnx.use();
@@ -121,10 +125,10 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
   /**
    * Attempts to continue using a connection. If the connection isn't managed
    * by this pool, or if the connection is already in use, nothing happens.
-   * 
+   *
    * If there are operations which have been queued in this pool, starts
-   * to execute that operation. 
-   * 
+   * to execute that operation.
+   *
    * Otherwise, nothing happens.
    */
   _reuseConnectionForQueuedOperations(_Connection cnx) {
@@ -138,7 +142,8 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
       return;
     }
 
-    if (_requestedConnections.containsKey(cnx) && _requestedConnections[cnx].length > 0) {
+    if (_requestedConnections.containsKey(cnx) &&
+        _requestedConnections[cnx].length > 0) {
       _log.finest("Reusing cnx#${cnx.number} for a requested operation");
       var c = _requestedConnections[cnx].removeFirst();
       cnx.use();
@@ -251,7 +256,8 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
         _log.finest("Connection not ready");
         await _waitUntilReady(cnx);
         _log.finest("Connection ready - closing query: ${q.sql}");
-        var handler = new _CloseStatementHandler(preparedQuery.statementHandlerId);
+        var handler =
+            new _CloseStatementHandler(preparedQuery.statementHandlerId);
         cnx.autoRelease = !retain;
         cnx.processHandler(handler, noResponse: true);
       }
@@ -318,14 +324,14 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
 
 /**
    * Gets a persistent connection to the database.
-   * 
+   *
    * When you execute a query on the connection pool, it waits until a free
    * connection is available, executes the query and then returns the connection
    * back to the connection pool. Sometimes there may be cases where you want
    * to keep the same connection around for subsequent queries (such as when
    * you lock tables). Use this method to get a connection which isn't released
    * after each query.
-   * 
+   *
    * You must use [RetainedConnection.release] when you have finished with the
    * connection, otherwise it will not be available in the pool again.
    */
@@ -370,7 +376,7 @@ abstract class _ConnectionHelpers {
 
 abstract class QueriableConnection {
 /**
-   * Executes the [sql] query, returning a [Future]<[Results]> that completes 
+   * Executes the [sql] query, returning a [Future]<[Results]> that completes
    * when the results start to become available.
    */
   Future<Results> query(String sql);
