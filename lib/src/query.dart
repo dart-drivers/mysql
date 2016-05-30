@@ -94,12 +94,15 @@ class Query extends Object with _ConnectionHelpers {
     _log.fine("Prepare...");
     var preparedQuery = await _prepare(true);
     _log.fine("Prepared, now to execute");
-    Results results = await _execute(preparedQuery, values == null ? [] : values);
-    _log.fine("Got prepared query results on #${preparedQuery.cnx.number} for: ${sql}");
+    Results results =
+        await _execute(preparedQuery, values == null ? [] : values);
+    _log.fine(
+        "Got prepared query results on #${preparedQuery.cnx.number} for: ${sql}");
     return results;
   }
 
-  Future<Results> _execute(_PreparedQuery preparedQuery, List values, {bool retainConnection: false}) async {
+  Future<Results> _execute(_PreparedQuery preparedQuery, List values,
+      {bool retainConnection: false}) async {
     _log.finest("About to execute");
     var handler = new _ExecuteQueryHandler(preparedQuery, _executed, values);
     preparedQuery.cnx.autoRelease = !retainConnection;
@@ -122,13 +125,15 @@ class Query extends Object with _ConnectionHelpers {
    */
   Future<List<Results>> executeMulti(List<List> parameters) async {
     var preparedQuery = await _prepare(true);
-    _log.fine("Prepared query for multi execution. Number of values: ${parameters.length}");
+    _log.fine(
+        "Prepared query for multi execution. Number of values: ${parameters.length}");
     var resultList = new List<Results>();
 
     for (int i = 0; i < parameters.length; i++) {
       try {
         _log.fine("Executing query, loop $i");
-        Results results = await _execute(preparedQuery, parameters[i], retainConnection: true);
+        Results results = await _execute(preparedQuery, parameters[i],
+            retainConnection: true);
         _log.fine("Got results, loop $i");
         Results deStreamedResults = await _ResultsImpl.destream(results);
         resultList.add(deStreamedResults);

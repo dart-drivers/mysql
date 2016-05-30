@@ -88,14 +88,22 @@ class _Connection {
    * is succesful.
    */
   Future connect(
-      {String host, int port, String user, String password, String db, bool useCompression, bool useSSL}) async {
+      {String host,
+      int port,
+      String user,
+      String password,
+      String db,
+      bool useCompression,
+      bool useSSL}) async {
     if (_socket != null) {
-      throw new MySqlClientError._("Cannot connect to server while a connection is already open");
+      throw new MySqlClientError._(
+          "Cannot connect to server while a connection is already open");
     }
 
     _user = user;
     _password = password;
-    _handler = new _HandshakeHandler(user, password, _maxPacketSize, db, useCompression, useSSL);
+    _handler = new _HandshakeHandler(
+        user, password, _maxPacketSize, db, useCompression, useSSL);
 
     _completer = new Completer();
     log.fine("opening connection to $host:$port/$db");
@@ -168,7 +176,8 @@ class _Connection {
       var combinedBuffer = new Buffer(length);
       var start = 0;
       _largePacketBuffers.forEach((aBuffer) {
-        combinedBuffer.list.setRange(start, start + aBuffer.length, aBuffer.list);
+        combinedBuffer.list
+            .setRange(start, start + aBuffer.length, aBuffer.list);
         start += aBuffer.length;
       });
       _largePacketBuffers.clear();
@@ -211,7 +220,8 @@ class _Connection {
       }
       if (response.hasResult) {
         if (_completer.isCompleted) {
-          _completer.completeError(new StateError("Request has already completed"));
+          _completer
+              .completeError(new StateError("Request has already completed"));
         }
         _completer.complete(response.result);
       }
@@ -228,7 +238,8 @@ class _Connection {
 
   void _finishAndReuse() {
     if (autoRelease && !inTransaction) {
-      log.finest("Response finished for #$number, setting handler to null and waiting to release and reuse");
+      log.finest(
+          "Response finished for #$number, setting handler to null and waiting to release and reuse");
       new Future.delayed(new Duration(seconds: 0), () {
         if (_closeRequested) {
           close();
@@ -249,7 +260,8 @@ class _Connection {
 
   Future _sendBuffer(Buffer buffer) {
     if (buffer.length > _maxPacketSize) {
-      throw new MySqlClientError._("Buffer length (${buffer.length}) bigger than maxPacketSize ($_maxPacketSize)");
+      throw new MySqlClientError._(
+          "Buffer length (${buffer.length}) bigger than maxPacketSize ($_maxPacketSize)");
     }
     if (_useCompression) {
       _headerBuffer[0] = buffer.length & 0xFF;
@@ -258,7 +270,8 @@ class _Connection {
       _headerBuffer[3] = ++_packetNumber;
       var encodedHeader = ZLIB.encode(_headerBuffer.list);
       var encodedBuffer = ZLIB.encode(buffer.list);
-      _compressedHeaderBuffer.writeUint24(encodedHeader.length + encodedBuffer.length);
+      _compressedHeaderBuffer
+          .writeUint24(encodedHeader.length + encodedBuffer.length);
       _compressedHeaderBuffer.writeByte(++_compressedPacketNumber);
       _compressedHeaderBuffer.writeUint24(4 + buffer.length);
       _socket.writeBuffer(_compressedHeaderBuffer);
@@ -277,7 +290,8 @@ class _Connection {
     _headerBuffer[3] = ++_packetNumber;
     log.fine("sending header, packet $_packetNumber");
     await _socket.writeBuffer(_headerBuffer);
-    log.fine("sendBuffer body, buffer length=${buffer.length}, start=$start, len=$len");
+    log.fine(
+        "sendBuffer body, buffer length=${buffer.length}, start=$start, len=$len");
     await _socket.writeBufferPart(buffer, start, len);
     if (len == 0xFFFFFF) {
       return _sendBufferPart(buffer, start + len);
@@ -292,7 +306,8 @@ class _Connection {
    *
    * Returns a future
    */
-  Future<dynamic> processHandler(_Handler handler, {bool noResponse: false}) async {
+  Future<dynamic> processHandler(_Handler handler,
+      {bool noResponse: false}) async {
     if (_handler != null) {
       throw new MySqlClientError._(
           "Connection #$number cannot process a request for $handler while a request is already in progress for $_handler");

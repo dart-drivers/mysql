@@ -40,14 +40,16 @@ class _PrepareHandler extends _Handler {
         } else {
           var fieldPacket = new _FieldImpl._(response);
           log.fine("field packet: $fieldPacket");
-          _parameters[_okPacket.parameterCount - _parametersToRead] = fieldPacket;
+          _parameters[_okPacket.parameterCount - _parametersToRead] =
+              fieldPacket;
         }
         _parametersToRead--;
       } else if (_columnsToRead > -1) {
         if (response[0] == PACKET_EOF) {
           log.fine("EOF");
           if (_columnsToRead != 0) {
-            throw new MySqlProtocolError._("Unexpected EOF packet; was expecting another $_columnsToRead column(s)");
+            throw new MySqlProtocolError._(
+                "Unexpected EOF packet; was expecting another $_columnsToRead column(s)");
           }
         } else {
           var fieldPacket = new _FieldImpl._(response);
@@ -73,7 +75,8 @@ class _PrepareHandler extends _Handler {
 
     if (_parametersToRead == -1 && _columnsToRead == -1) {
       log.fine("finished");
-      return new _HandlerResponse(finished: true, result: new _PreparedQuery(this));
+      return new _HandlerResponse(
+          finished: true, result: new _PreparedQuery(this));
     }
     return _HandlerResponse.notFinished;
   }

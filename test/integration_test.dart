@@ -43,7 +43,8 @@ void main(List<String> args) {
   Logger.root.onRecord.listen(listener);
 
   var parser = new ArgParser();
-  parser.addOption('large_packets', allowed: ['true', 'false'], defaultsTo: 'true');
+  parser.addOption('large_packets',
+      allowed: ['true', 'false'], defaultsTo: 'true');
   var results = parser.parse(args);
 
   var options = new OptionsFile('connection.options');

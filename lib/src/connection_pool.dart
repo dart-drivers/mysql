@@ -5,7 +5,9 @@ part of sqljocky;
  * a free connection it will be used, otherwise the query is queued until a connection is
  * free.
  */
-class ConnectionPool extends Object with _ConnectionHelpers implements QueriableConnection {
+class ConnectionPool extends Object
+    with _ConnectionHelpers
+    implements QueriableConnection {
   final Logger _log;
 
   final String _host;
@@ -70,11 +72,13 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
     var c = new Completer<_Connection>();
 
     if (_log.isLoggable(Level.FINEST)) {
-      var inUseCount = _pool.fold(0, (value, cnx) => cnx.inUse ? value + 1 : value);
+      var inUseCount =
+          _pool.fold(0, (value, cnx) => cnx.inUse ? value + 1 : value);
       _log.finest("Number of in-use connections: $inUseCount");
     }
 
-    var cnx = _pool.firstWhere((aConnection) => !aConnection.inUse, orElse: () => null);
+    var cnx = _pool.firstWhere((aConnection) => !aConnection.inUse,
+        orElse: () => null);
     if (cnx != null) {
       _log.finest("Using open pooled cnx#${cnx.number}");
       cnx.use();
@@ -138,7 +142,8 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
       return;
     }
 
-    if (_requestedConnections.containsKey(cnx) && _requestedConnections[cnx].length > 0) {
+    if (_requestedConnections.containsKey(cnx) &&
+        _requestedConnections[cnx].length > 0) {
       _log.finest("Reusing cnx#${cnx.number} for a requested operation");
       var c = _requestedConnections[cnx].removeFirst();
       cnx.use();
@@ -251,7 +256,8 @@ class ConnectionPool extends Object with _ConnectionHelpers implements Queriable
         _log.finest("Connection not ready");
         await _waitUntilReady(cnx);
         _log.finest("Connection ready - closing query: ${q.sql}");
-        var handler = new _CloseStatementHandler(preparedQuery.statementHandlerId);
+        var handler =
+            new _CloseStatementHandler(preparedQuery.statementHandlerId);
         cnx.autoRelease = !retain;
         cnx.processHandler(handler, noResponse: true);
       }

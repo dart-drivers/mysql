@@ -19,14 +19,17 @@ void runConnectionTests() {
       cnx._socket = socket;
 
       when(socket.writeBuffer(any)).thenReturn(new Future.value());
-      when(socket.writeBufferPart(any, any, any)).thenReturn(new Future.value());
+      when(socket.writeBufferPart(any, any, any))
+          .thenReturn(new Future.value());
 
       var buffer = new Buffer.fromList([1, 2, 3]);
       await cnx._sendBuffer(buffer);
       var captured = verify(socket.writeBuffer(captureAny)).captured;
       expect(captured[0], hasLength(4));
       expect(captured[0].list, equals([3, 0, 0, 1]));
-      captured = verify(socket.writeBufferPart(captureAny, captureAny, captureAny)).captured;
+      captured =
+          verify(socket.writeBufferPart(captureAny, captureAny, captureAny))
+              .captured;
       expect(captured[0].list, equals([1, 2, 3]));
       expect(captured[1], equals(0));
       expect(captured[2], equals(3));
@@ -36,7 +39,9 @@ void runConnectionTests() {
       captured = verify(socket.writeBuffer(captureAny)).captured;
       expect(captured[0], hasLength(4));
       expect(captured[0].list, equals([3, 0, 0, 2]));
-      captured = verify(socket.writeBufferPart(captureAny, captureAny, captureAny)).captured;
+      captured =
+          verify(socket.writeBufferPart(captureAny, captureAny, captureAny))
+              .captured;
       expect(captured[0].list, equals([1, 2, 3]));
       expect(captured[1], equals(0));
       expect(captured[2], equals(3));
@@ -54,7 +59,8 @@ void runConnectionTests() {
         buffers.add(new List.from(buffer.list));
         return new Future.value();
       });
-      when(socket.writeBufferPart(any, any, any)).thenReturn(new Future.value());
+      when(socket.writeBufferPart(any, any, any))
+          .thenReturn(new Future.value());
 
       final PACKET_SIZE = 17 * 1024 * 1024;
       var buffer = new Buffer(PACKET_SIZE);
@@ -62,7 +68,9 @@ void runConnectionTests() {
       verify(socket.writeBuffer(any)).called(2);
       expect(buffers[0], equals([0xff, 0xff, 0xff, 1]));
       expect(buffers[1], equals([1, 0, 16, 2]));
-      var captured = verify(socket.writeBufferPart(captureAny, captureAny, captureAny)).captured;
+      var captured =
+          verify(socket.writeBufferPart(captureAny, captureAny, captureAny))
+              .captured;
       expect(captured, hasLength(6));
       expect(captured[1], equals(0));
       expect(captured[2], equals(0xffffff));

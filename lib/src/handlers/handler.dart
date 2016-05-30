@@ -21,7 +21,8 @@ class _HandlerResponse {
 
   bool get hasResult => result != _NO_RESULT;
 
-  _HandlerResponse({this.finished: false, this.nextHandler: null, this.result: _NO_RESULT});
+  _HandlerResponse(
+      {this.finished: false, this.nextHandler: null, this.result: _NO_RESULT});
 
   static final _HandlerResponse notFinished = new _HandlerResponse();
 }
@@ -56,7 +57,8 @@ abstract class _Handler {
    * a [MySqlException] if it was an Error packet, or returns [:null:] 
    * if the packet has not been handled by this method.
    */
-  dynamic checkResponse(Buffer response, [bool prepareStmt = false, bool isHandlingRows = false]) {
+  dynamic checkResponse(Buffer response,
+      [bool prepareStmt = false, bool isHandlingRows = false]) {
     if (response[0] == PACKET_OK && !isHandlingRows) {
       if (prepareStmt) {
         var okPacket = new _PrepareOkPacket(response);

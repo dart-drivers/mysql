@@ -5,9 +5,11 @@ class _BinaryDataPacket extends Row {
   final Map<Symbol, int> _fieldIndex;
   final Logger log;
 
-  _BinaryDataPacket._forTests(this.values, this._fieldIndex) : log = new Logger("BinaryDataPacket");
+  _BinaryDataPacket._forTests(this.values, this._fieldIndex)
+      : log = new Logger("BinaryDataPacket");
 
-  _BinaryDataPacket(Buffer buffer, List<_FieldImpl> fields, this._fieldIndex) : log = new Logger("BinaryDataPacket") {
+  _BinaryDataPacket(Buffer buffer, List<_FieldImpl> fields, this._fieldIndex)
+      : log = new Logger("BinaryDataPacket") {
     buffer.skip(1);
     var nulls = buffer.readList(((fields.length + 7 + 2) / 8).floor().toInt());
     log.fine("Nulls: $nulls");
@@ -120,12 +122,16 @@ class _BinaryDataPacket extends Row {
             minutes = date[5];
             seconds = date[6];
             if (date.length > 7) {
-              billionths = date[7] + (date[8] << 0x08) + (date[9] << 0x10) + (date[10] << 0x18);
+              billionths = date[7] +
+                  (date[8] << 0x08) +
+                  (date[9] << 0x10) +
+                  (date[10] << 0x18);
             }
           }
         }
 
-        var value = new DateTime(year, month, day, hours, minutes, seconds, billionths ~/ 1000000);
+        var value = new DateTime(
+            year, month, day, hours, minutes, seconds, billionths ~/ 1000000);
         log.fine("Value: ${value}");
         return value;
       case FIELD_TYPE_TIME:
@@ -143,12 +149,18 @@ class _BinaryDataPacket extends Row {
         log.fine("time: $time");
         if (time.length > 0) {
           sign = time[0] == 1 ? -1 : 1;
-          days = time[1] + (time[2] << 0x08) + (time[3] << 0x10) + (time[4] << 0x18);
+          days = time[1] +
+              (time[2] << 0x08) +
+              (time[3] << 0x10) +
+              (time[4] << 0x18);
           hours = time[5];
           minutes = time[6];
           seconds = time[7];
           if (time.length > 8) {
-            billionths = time[8] + (time[9] << 0x08) + (time[10] << 0x10) + (time[11] << 0x18);
+            billionths = time[8] +
+                (time[9] << 0x08) +
+                (time[10] << 0x10) +
+                (time[11] << 0x18);
           }
         }
         var value = new Duration(

@@ -88,7 +88,8 @@ void runPreparedStatementTests() {
 
     test('can read INT24s', () {
       var dataPacket = new _BinaryDataPacket._forTests(null, null);
-      var buffer = new Buffer.fromList([0, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0]);
+      var buffer =
+          new Buffer.fromList([0, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0]);
       var field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
 
       var value = dataPacket._readField(field, buffer);
@@ -106,7 +107,8 @@ void runPreparedStatementTests() {
 
     test('can read LONGs', () {
       var dataPacket = new _BinaryDataPacket._forTests(null, null);
-      var buffer = new Buffer.fromList([0, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0]);
+      var buffer =
+          new Buffer.fromList([0, 0, 0, 0, 255, 255, 255, 255, 255, 0, 0, 0]);
       var field = new _FieldImpl._forTests(FIELD_TYPE_LONG);
 
       var value = dataPacket._readField(field, buffer);
@@ -124,8 +126,32 @@ void runPreparedStatementTests() {
 
     test('can read LONGLONGs', () {
       var dataPacket = new _BinaryDataPacket._forTests(null, null);
-      var buffer = new Buffer.fromList(
-          [0, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0]);
+      var buffer = new Buffer.fromList([
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        255,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]);
       var field = new _FieldImpl._forTests(FIELD_TYPE_LONGLONG);
 
       var value = dataPacket._readField(field, buffer);

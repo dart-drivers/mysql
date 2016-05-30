@@ -19,7 +19,8 @@ class _ExecuteQueryHandler extends _Handler {
   bool _executed;
   bool _cancelled = false;
 
-  _ExecuteQueryHandler(_PreparedQuery this._preparedQuery, bool this._executed, List this._values) {
+  _ExecuteQueryHandler(_PreparedQuery this._preparedQuery, bool this._executed,
+      List this._values) {
     _fieldPackets = <_FieldImpl>[];
     log = new Logger("ExecuteQueryHandler");
   }
@@ -157,7 +158,8 @@ class _ExecuteQueryHandler extends _Handler {
   }
 
   int _measureDouble(value, preparedValue) {
-    return Buffer.measureLengthCodedBinary(preparedValue.length) + preparedValue.length;
+    return Buffer.measureLengthCodedBinary(preparedValue.length) +
+        preparedValue.length;
   }
 
   _writeDouble(value, preparedValue, Buffer buffer) {
@@ -225,7 +227,8 @@ class _ExecuteQueryHandler extends _Handler {
   }
 
   int _measureBlob(value, preparedValue) {
-    return Buffer.measureLengthCodedBinary(preparedValue.length) + preparedValue.length;
+    return Buffer.measureLengthCodedBinary(preparedValue.length) +
+        preparedValue.length;
   }
 
   _writeBlob(value, preparedValue, Buffer buffer) {
@@ -239,7 +242,8 @@ class _ExecuteQueryHandler extends _Handler {
   }
 
   int _measureString(value, preparedValue) {
-    return Buffer.measureLengthCodedBinary(preparedValue.length) + preparedValue.length;
+    return Buffer.measureLengthCodedBinary(preparedValue.length) +
+        preparedValue.length;
   }
 
   _writeString(value, preparedValue, Buffer buffer) {
@@ -323,7 +327,9 @@ class _ExecuteQueryHandler extends _Handler {
       _okPacket = packet;
       if ((packet.serverStatus & SERVER_MORE_RESULTS_EXISTS) == 0) {
         return new _HandlerResponse(
-            finished: true, result: new _ResultsImpl(_okPacket.insertId, _okPacket.affectedRows, null));
+            finished: true,
+            result: new _ResultsImpl(
+                _okPacket.insertId, _okPacket.affectedRows, null));
       }
     }
     return _HandlerResponse.notFinished;
@@ -336,7 +342,9 @@ class _ExecuteQueryHandler extends _Handler {
       _cancelled = true;
     };
     this._fieldIndex = _createFieldIndex();
-    return new _HandlerResponse(result: new _ResultsImpl(null, null, _fieldPackets, stream: _streamController.stream));
+    return new _HandlerResponse(result: new _ResultsImpl(
+        null, null, _fieldPackets,
+        stream: _streamController.stream));
   }
 
   _handleEndOfRows() {
@@ -360,7 +368,8 @@ class _ExecuteQueryHandler extends _Handler {
 
   _handleRowPacket(Buffer response) {
     log.fine('Got a row packet');
-    var dataPacket = new _BinaryDataPacket(response, _fieldPackets, _fieldIndex);
+    var dataPacket =
+        new _BinaryDataPacket(response, _fieldPackets, _fieldIndex);
     log.fine(dataPacket.toString());
     _streamController.add(dataPacket);
   }
