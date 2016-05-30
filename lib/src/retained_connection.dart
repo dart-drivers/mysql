@@ -52,6 +52,8 @@ abstract class RetainedConnection extends QueriableConnection {
    * Releases the connection back to the connection pool.
    */
   Future release();
+
+  bool get usingSSL;
 }
 
 class _RetainedConnectionImpl extends _RetainedConnectionBase

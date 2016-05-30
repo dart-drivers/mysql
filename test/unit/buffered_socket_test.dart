@@ -200,7 +200,7 @@ void runBufferedSocketTests() {
       var onClosed = () {
         closed = true;
       };
-      var socket = await BufferedSocket.connect('localhost', 100,
+      await BufferedSocket.connect('localhost', 100,
           onDataReady: () {},
           onDone: () {},
           onError: (e) {},
