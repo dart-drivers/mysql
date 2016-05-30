@@ -300,7 +300,7 @@ void runHandshakeHandlerTests() {
       expect(response.nextHandler, new isInstanceOf<_AuthHandler>());
 
       int clientFlags = CLIENT_PROTOCOL_41 |
-          clientLongPassword |
+          CLIENT_LONG_PASSWORD |
           CLIENT_LONG_FLAG |
           CLIENT_TRANSACTIONS |
           CLIENT_SECURE_CONNECTION;
@@ -445,7 +445,7 @@ void runHandshakeHandlerTests() {
       expect(response.nextHandler, new isInstanceOf<_SSLHandler>());
 
       int clientFlags = CLIENT_PROTOCOL_41 |
-          clientLongPassword |
+          CLIENT_LONG_PASSWORD |
           CLIENT_LONG_FLAG |
           CLIENT_TRANSACTIONS |
           CLIENT_SECURE_CONNECTION |

@@ -103,7 +103,7 @@ class _HandshakeHandler extends _Handler {
     }
 
     int clientFlags = CLIENT_PROTOCOL_41 |
-        clientLongPassword |
+        CLIENT_LONG_PASSWORD |
         CLIENT_LONG_FLAG |
         CLIENT_TRANSACTIONS |
         CLIENT_SECURE_CONNECTION;

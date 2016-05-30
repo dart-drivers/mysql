@@ -31,7 +31,7 @@ class _QueryStreamHandler extends _Handler {
     log.fine("Processing query response");
     var packet = checkResponse(response, false, _state == STATE_ROW_PACKETS);
     if (packet == null) {
-      if (response[0] == packetEof) {
+      if (response[0] == PACKET_EOF) {
         if (_state == STATE_FIELD_PACKETS) {
           return _handleEndOfFields();
         } else if (_state == STATE_ROW_PACKETS) {
