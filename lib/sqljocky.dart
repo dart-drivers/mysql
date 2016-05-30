@@ -19,9 +19,13 @@ export 'src/results.dart';
 
 part 'src/blob.dart';
 
+part 'src/queriable_connection.dart';
 part 'src/connection_pool.dart';
 part 'src/connection.dart';
+part 'src/connection_helpers.dart';
 part 'src/transaction.dart';
+part 'src/transaction_pool.dart';
+part 'src/retained_connection_base.dart';
 part 'src/retained_connection.dart';
 part 'src/query.dart';
 part 'src/mysql_exception.dart';
