@@ -1,6 +1,6 @@
 part of sqljocky;
 
- /// An exception which is returned by the MySQL server.
+/// An exception which is returned by the MySQL server.
 class MySqlException implements Exception {
   int _errorNumber;
   String _sqlState;

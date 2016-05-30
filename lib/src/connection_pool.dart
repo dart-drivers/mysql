@@ -1,8 +1,8 @@
 part of sqljocky;
 
- /// Maintains a pool of database connections. When queries are executed, if there is
- /// a free connection it will be used, otherwise the query is queued until a connection is
- /// free.
+/// Maintains a pool of database connections. When queries are executed, if there is
+/// a free connection it will be used, otherwise the query is queued until a connection is
+/// free.
 class ConnectionPool extends Object
     with _ConnectionHelpers
     implements QueriableConnection {

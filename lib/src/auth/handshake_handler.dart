@@ -20,8 +20,7 @@ class _HandshakeHandler extends _Handler {
   bool useCompression = false;
   bool useSSL = false;
 
-  _HandshakeHandler(
-      this._user, this._password, this._maxPacketSize,
+  _HandshakeHandler(this._user, this._password, this._maxPacketSize,
       [String db, bool useCompression, bool useSSL])
       : _db = db,
         this.useCompression = useCompression,

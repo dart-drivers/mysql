@@ -1,11 +1,11 @@
 part of sqljocky;
 
- /// Query is created by `ConnectionPool.prepare(sql)` and `Transaction.prepare(sql)`. It holds
- /// a prepared query.
- ///
- /// In MySQL, a query must be prepared on a specific connection. If you execute this
- /// query and a connection is used from the pool which doesn't yet have the prepared query
- /// in its cache, it will first prepare the query on that connection before executing it.
+/// Query is created by `ConnectionPool.prepare(sql)` and `Transaction.prepare(sql)`. It holds
+/// a prepared query.
+///
+/// In MySQL, a query must be prepared on a specific connection. If you execute this
+/// query and a connection is used from the pool which doesn't yet have the prepared query
+/// in its cache, it will first prepare the query on that connection before executing it.
 class Query extends Object with _ConnectionHelpers {
   final ConnectionPool _pool;
   final _Connection _cnx;

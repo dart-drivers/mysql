@@ -5,14 +5,14 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'dart:convert';
 
- /// This provides methods to read and write strings, lists and
- /// various sized integers on a buffer (implemented as an integer list).
- ///
- /// The ints in the backing list must all be 8-bit values. If larger values are
- /// entered, behaviour is undefined.
- ///
- /// As per mysql spec, numbers here are all unsigned.
- /// Which makes things much easier.
+/// This provides methods to read and write strings, lists and
+/// various sized integers on a buffer (implemented as an integer list).
+///
+/// The ints in the backing list must all be 8-bit values. If larger values are
+/// entered, behaviour is undefined.
+///
+/// As per mysql spec, numbers here are all unsigned.
+/// Which makes things much easier.
 class Buffer {
   final Logger log;
   int _writePos = 0;

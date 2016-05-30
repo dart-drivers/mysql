@@ -6,12 +6,12 @@ class _NoResult {
 
 const _NO_RESULT = const _NoResult();
 
- /// Represents the response from a [_Handler] when [_Handler.processResponse] is
- /// called. If the handler has finished processing the response, [finished] is true,
- /// [nextHandler] is irrelevant and [result] contains the result to return to the
- /// user. If the handler needs another handler to process the response, [finished]
- /// is false, [nextHandler] contains the next handler which should process the
- /// next packet from the server, and [result] is [_NO_RESULT].
+/// Represents the response from a [_Handler] when [_Handler.processResponse] is
+/// called. If the handler has finished processing the response, [finished] is true,
+/// [nextHandler] is irrelevant and [result] contains the result to return to the
+/// user. If the handler needs another handler to process the response, [finished]
+/// is false, [nextHandler] contains the next handler which should process the
+/// next packet from the server, and [result] is [_NO_RESULT].
 class _HandlerResponse {
   final bool finished;
   final _Handler nextHandler;
@@ -25,11 +25,11 @@ class _HandlerResponse {
   static final _HandlerResponse notFinished = new _HandlerResponse();
 }
 
- /// Each command which the mysql protocol implements is handled with a [_Handler] object.
- /// A handler is created with the appropriate parameters when the command is invoked
- /// from the connection. The transport is then responsible for sending the
- /// request which the handler creates, and then parsing the result returned by
- /// the mysql server, either synchronously or asynchronously.
+/// Each command which the mysql protocol implements is handled with a [_Handler] object.
+/// A handler is created with the appropriate parameters when the command is invoked
+/// from the connection. The transport is then responsible for sending the
+/// request which the handler creates, and then parsing the result returned by
+/// the mysql server, either synchronously or asynchronously.
 abstract class _Handler {
   Logger log;
 

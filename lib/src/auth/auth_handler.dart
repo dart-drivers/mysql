@@ -10,14 +10,8 @@ class _AuthHandler extends _Handler {
   final int _characterSet;
   final bool _ssl;
 
-  _AuthHandler(
-      this._username,
-      this._password,
-      this._db,
-      this._scrambleBuffer,
-      this._clientFlags,
-      this._maxPacketSize,
-      this._characterSet,
+  _AuthHandler(this._username, this._password, this._db, this._scrambleBuffer,
+      this._clientFlags, this._maxPacketSize, this._characterSet,
       {bool ssl: false})
       : this._ssl = false {
     log = new Logger("AuthHandler");
