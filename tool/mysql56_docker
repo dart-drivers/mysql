@@ -1,0 +1,8 @@
+#!/bin/sh
+docker run --name mysql56_test -d -P \
+	-e MYSQL_ROOT_PASSWORD=root \
+	-e MYSQL_USER=test \
+	-e MYSQL_PASSWORD=test \
+	-e MYSQL_DATABASE=test \
+	mysql:5.6
+docker port mysql56_test
