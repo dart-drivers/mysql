@@ -14,7 +14,7 @@ class TableDropper {
   TableDropper(this.pool, this.tables);
 
   /**
-   * Drops the tables this [TableDropper] was created with. The 
+   * Drops the tables this [TableDropper] was created with. The
    * returned [Future] completes when all the tables have been dropped.
    * If a table doesn't exist, it is ignored.
    */
@@ -44,7 +44,7 @@ class QueryRunner {
 
   /**
    * Create a [QueryRunner]. Needs a [pool] and
-   * a list of [queries]. 
+   * a list of [queries].
    */
   QueryRunner(this.pool, this.queries);
 
