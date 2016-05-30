@@ -65,8 +65,8 @@ void main(List<String> args) {
   runErrorTests(user, password, db, port, host);
   runBlobTests(user, password, db, port, host);
 //  runStoredProcedureTests(user, password, db, port, host);
-  runExecuteMultiTests(user, password, db, port, host);
+  // runExecuteMultiTests(user, password, db, port, host);
 //  if (results['large_packets'] == 'true') {
-//    runLargeBlobTests(user, password, db, port, host);
+  //  runLargeBlobTests(user, password, db, port, host);
 //  }
 }

@@ -158,6 +158,7 @@ class Buffer {
       case 254:
         return readUint64();
     }
+    throw "Unexpected first byte of length coded binary: $first";
   }
 
   static int measureLengthCodedBinary(int value) {
@@ -173,6 +174,7 @@ class Buffer {
     if (value < (2 << 63)) {
       return 5;
     }
+    throw "Error trying to measure a large int: $value";
   }
 
   /// Will write a length coded binary value, once implemented!

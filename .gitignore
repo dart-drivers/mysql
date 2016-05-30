@@ -1,4 +1,5 @@
 connection.options
+.atom
 .children
 .project
 .idea
