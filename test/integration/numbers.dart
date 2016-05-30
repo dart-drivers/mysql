@@ -97,7 +97,7 @@ void runNumberTests(
           pool,
           'nums',
           "insert into nums (adecimal) values ("
-          "99999999999999999999.9999999999)",
+          "9999999999.9999999999)",
           'select adecimal from nums').then((results) {
         results.listen((row) {
           expect(row[0], equals(9999999999.9999999999));
@@ -114,7 +114,7 @@ void runNumberTests(
           pool,
           'nums',
           "insert into nums (adecimal) values ("
-          "-99999999999999999999.9999999999)",
+          "-9999999999.9999999999)",
           'select adecimal from nums').then((results) {
         results.listen((row) {
           expect(row[0], equals(-9999999999.9999999999));
