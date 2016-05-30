@@ -23,6 +23,7 @@ void runStoredProcedureTests(
 //END
 //''').then((results) {
 //        return query.query('call getall()');
+      var c = new Completer();
       var results = await pool.query('call getall()');
       results.listen((row) {}, onDone: () {
         c.complete();

@@ -21,7 +21,7 @@ void runLargeBlobTests(
 
     test('read data', () {
       var c = new Completer();
-      pool.query('select * from large').then(expectAsync1((Results results) {
+      pool.query('select * from large').then(expectAsync((Results results) {
         results.listen((row) {
           var t = row[0].toString();
           expect(t.length, equals(text.length));
