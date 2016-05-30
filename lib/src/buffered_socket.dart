@@ -20,9 +20,7 @@ class BufferedSocket {
   DoneHandler onDone;
   ClosedHandler onClosed;
 
-  /**
-   * When data arrives and there is no read currently in progress, the onDataReady handler is called.
-   */
+  /// When data arrives and there is no read currently in progress, the onDataReady handler is called.
   DataReadyHandler onDataReady;
 
   RawSocket _socket;
@@ -107,10 +105,8 @@ class BufferedSocket {
     }
   }
 
-  /**
-   * Writes [buffer] to the socket, and returns the same buffer in a [Future] which
-   * completes when it has all been written.
-   */
+  /// Writes [buffer] to the socket, and returns the same buffer in a [Future] which
+  /// completes when it has all been written.
   Future<Buffer> writeBuffer(Buffer buffer) {
     return writeBufferPart(buffer, 0, buffer.length);
   }
@@ -134,7 +130,7 @@ class BufferedSocket {
   }
 
   void _writeBuffer() {
-    log.fine("_writeBuffer offset=${_writeOffset}");
+    log.fine("_writeBuffer offset=$_writeOffset");
     int bytesWritten = _writingBuffer.writeToSocket(
         _socket, _writeOffset, _writeLength - _writeOffset);
     log.fine("Wrote $bytesWritten bytes");
@@ -150,14 +146,12 @@ class BufferedSocket {
     }
   }
 
-  /**
-   * Reads into [buffer] from the socket, and returns the same buffer in a [Future] which
-   * completes when enough bytes have been read to fill the buffer.
-   *
-   * This must not be called while there is still a read ongoing, but may be called before
-   * onDataReady is called, in which case onDataReady will not be called when data arrives,
-   * and the read will start instead.
-   */
+  /// Reads into [buffer] from the socket, and returns the same buffer in a [Future] which
+  /// completes when enough bytes have been read to fill the buffer.
+  ///
+  /// This must not be called while there is still a read ongoing, but may be called before
+  /// onDataReady is called, in which case onDataReady will not be called when data arrives,
+  /// and the read will start instead.
   Future<Buffer> readBuffer(Buffer buffer) {
     log.fine("readBuffer, length=${buffer.length}");
     if (_closed) {

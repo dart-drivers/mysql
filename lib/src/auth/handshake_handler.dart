@@ -21,7 +21,7 @@ class _HandshakeHandler extends _Handler {
   bool useSSL = false;
 
   _HandshakeHandler(
-      String this._user, String this._password, int this._maxPacketSize,
+      this._user, this._password, this._maxPacketSize,
       [String db, bool useCompression, bool useSSL])
       : _db = db,
         this.useCompression = useCompression,
@@ -29,10 +29,8 @@ class _HandshakeHandler extends _Handler {
     log = new Logger("HandshakeHandler");
   }
 
-  /**
-   * The server initiates the handshake after the client connects,
-   * so a request will never be created.
-   */
+  /// The server initiates the handshake after the client connects,
+  /// so a request will never be created.
   Buffer createRequest() {
     throw new MySqlClientError._("Cannot create a handshake request");
   }
@@ -80,13 +78,11 @@ class _HandshakeHandler extends _Handler {
     }
   }
 
-  /**
-   * After receiving the handshake packet, if all is well, an [_AuthHandler]
-   * is created and returned to handle authentication.
-   *
-   * Currently, if the client protocol version is not 4.1, an
-   * exception is thrown.
-   */
+  /// After receiving the handshake packet, if all is well, an [_AuthHandler]
+  /// is created and returned to handle authentication.
+  ///
+  /// Currently, if the client protocol version is not 4.1, an
+  /// exception is thrown.
   _HandlerResponse processResponse(Buffer response) {
     _readResponseBuffer(response);
 
@@ -107,7 +103,7 @@ class _HandshakeHandler extends _Handler {
     }
 
     int clientFlags = CLIENT_PROTOCOL_41 |
-        CLIENT_LONG_PASSWORD |
+        clientLongPassword |
         CLIENT_LONG_FLAG |
         CLIENT_TRANSACTIONS |
         CLIENT_SECURE_CONNECTION;

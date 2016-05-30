@@ -29,11 +29,9 @@ class _ResultsImpl extends StreamView<Row> implements Results {
     _fields = new UnmodifiableListView<Field>(fields);
   }
 
-  /**
-   * Takes a _ResultsImpl and destreams it. That is, it listens to the stream, collecting
-   * all the rows into a list until the stream has finished. It then returns a new
-   * _ResultsImpl which wraps that list of rows.
-   */
+  /// Takes a _ResultsImpl and destreams it. That is, it listens to the stream, collecting
+  /// all the rows into a list until the stream has finished. It then returns a new
+  /// _ResultsImpl which wraps that list of rows.
   static Future<_ResultsImpl> destream(_ResultsImpl results) async {
     var rows = new List<Row>();
     await results.forEach((row) {

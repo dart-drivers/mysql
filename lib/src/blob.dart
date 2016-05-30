@@ -1,12 +1,10 @@
 part of sqljocky;
 
-/**
- * Holds blob data, and can be created or accessed as either a [String] or a [List] of
- * 8-bit integers.
- *
- * When a blob which was created as a list of integers is accessed as a string, those
- * integers are treated as UTF-8 code units (unsigned 8-bit integers).
- */
+ /// Holds blob data, and can be created or accessed as either a [String] or a [List] of
+ /// 8-bit integers.
+ ///
+ /// When a blob which was created as a list of integers is accessed as a string, those
+ /// integers are treated as UTF-8 code units (unsigned 8-bit integers).
 class Blob {
   String _string;
   List<int> _codeUnits;

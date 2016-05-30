@@ -11,13 +11,13 @@ class _AuthHandler extends _Handler {
   final bool _ssl;
 
   _AuthHandler(
-      String this._username,
-      String this._password,
-      String this._db,
-      List<int> this._scrambleBuffer,
-      int this._clientFlags,
-      int this._maxPacketSize,
-      int this._characterSet,
+      this._username,
+      this._password,
+      this._db,
+      this._scrambleBuffer,
+      this._clientFlags,
+      this._maxPacketSize,
+      this._characterSet,
       {bool ssl: false})
       : this._ssl = false {
     log = new Logger("AuthHandler");

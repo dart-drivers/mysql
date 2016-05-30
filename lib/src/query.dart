@@ -1,13 +1,11 @@
 part of sqljocky;
 
-/**
- * Query is created by `ConnectionPool.prepare(sql)` and `Transaction.prepare(sql)`. It holds
- * a prepared query.
- *
- * In MySQL, a query must be prepared on a specific connection. If you execute this
- * query and a connection is used from the pool which doesn't yet have the prepared query
- * in its cache, it will first prepare the query on that connection before executing it.
- */
+ /// Query is created by `ConnectionPool.prepare(sql)` and `Transaction.prepare(sql)`. It holds
+ /// a prepared query.
+ ///
+ /// In MySQL, a query must be prepared on a specific connection. If you execute this
+ /// query and a connection is used from the pool which doesn't yet have the prepared query
+ /// in its cache, it will first prepare the query on that connection before executing it.
 class Query extends Object with _ConnectionHelpers {
   final ConnectionPool _pool;
   final _Connection _cnx;
@@ -53,9 +51,7 @@ class Query extends Object with _ConnectionHelpers {
     }
   }
 
-  /**
-   * Returns true if there was already a cached query which has been used.
-   */
+  /// Returns true if there was already a cached query which has been used.
   _PreparedQuery _useCachedQuery(_Connection cnx) {
     var preparedQuery = cnx.getPreparedQueryFromCache(sql);
     if (preparedQuery == null) {
@@ -87,9 +83,7 @@ class Query extends Object with _ConnectionHelpers {
     _pool._closeQuery(this, _inTransaction);
   }
 
-  /**
-   * Executes the query, returning a future [Results] object.
-   */
+  /// Executes the query, returning a future [Results] object.
   Future<Results> execute([List values]) async {
     _log.fine("Prepare...");
     var preparedQuery = await _prepare(true);
@@ -97,7 +91,7 @@ class Query extends Object with _ConnectionHelpers {
     Results results =
         await _execute(preparedQuery, values == null ? [] : values);
     _log.fine(
-        "Got prepared query results on #${preparedQuery.cnx.number} for: ${sql}");
+        "Got prepared query results on #${preparedQuery.cnx.number} for: $sql");
     return results;
   }
 
@@ -115,14 +109,12 @@ class Query extends Object with _ConnectionHelpers {
     }
   }
 
-  /**
-   * Executes the query once for each set of [parameters], and returns a future list
-   * of results, one for each set of parameters, that completes when the query has been executed.
-   *
-   * Because this method has to wait for all the results to return from the server before it
-   * can move onto the next query, it ends up keeping all the results in memory, rather than
-   * streaming them, which can be less efficient.
-   */
+  /// Executes the query once for each set of [parameters], and returns a future list
+  /// of results, one for each set of parameters, that completes when the query has been executed.
+  ///
+  /// Because this method has to wait for all the results to return from the server before it
+  /// can move onto the next query, it ends up keeping all the results in memory, rather than
+  /// streaming them, which can be less efficient.
   Future<List<Results>> executeMulti(List<List> parameters) async {
     var preparedQuery = await _prepare(true);
     _log.fine(

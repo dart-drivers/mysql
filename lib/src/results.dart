@@ -1,7 +1,5 @@
-/**
- * results is exported by sqljocky, so there is no need to
- * separately import this library.
- */
+ /// results is exported by sqljocky, so there is no need to
+ /// separately import this library.
 library results;
 
 import 'dart:collection';

@@ -13,7 +13,7 @@ class _PrepareHandler extends _Handler {
   List<_FieldImpl> get parameters => _parameters;
   List<_FieldImpl> get columns => _columns;
 
-  _PrepareHandler(String this._sql) {
+  _PrepareHandler(this._sql) {
     log = new Logger("PrepareHandler");
   }
 

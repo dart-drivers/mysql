@@ -45,49 +45,49 @@ class _BinaryDataPacket extends Row {
         log.fine("BLOB");
         var len = buffer.readLengthCodedBinary();
         var value = new Blob.fromBytes(buffer.readList(len));
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_TINY:
         log.fine("TINY");
         var value = buffer.readByte();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_SHORT:
         log.fine("SHORT");
         var value = buffer.readInt16();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_INT24:
         log.fine("INT24");
         var value = buffer.readInt32();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_LONG:
         log.fine("LONG");
         var value = buffer.readInt32();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_LONGLONG:
         log.fine("LONGLONG");
         var value = buffer.readInt64();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_NEWDECIMAL:
         log.fine("NEWDECIMAL");
         var len = buffer.readByte();
         var num = buffer.readString(len);
         var value = double.parse(num);
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_FLOAT:
         log.fine("FLOAT");
         var value = buffer.readFloat();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_DOUBLE:
         log.fine("DOUBLE");
         var value = buffer.readDouble();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_BIT:
         log.fine("BIT");
@@ -97,7 +97,7 @@ class _BinaryDataPacket extends Row {
         for (var num in list) {
           value = (value << 8) + num;
         }
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_DATETIME:
       case FIELD_TYPE_DATE:
@@ -132,7 +132,7 @@ class _BinaryDataPacket extends Row {
 
         var value = new DateTime(
             year, month, day, hours, minutes, seconds, billionths ~/ 1000000);
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_TIME:
         log.fine("TIME");
@@ -173,17 +173,17 @@ class _BinaryDataPacket extends Row {
       case FIELD_TYPE_YEAR:
         log.fine("YEAR");
         var value = buffer.readInt16();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_STRING:
         log.fine("STRING");
         var value = buffer.readLengthCodedString();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_VAR_STRING:
         log.fine("STRING");
         var value = buffer.readLengthCodedString();
-        log.fine("Value: ${value}");
+        log.fine("Value: $value");
         return value;
       case FIELD_TYPE_GEOMETRY:
         log.fine("GEOMETRY - not implemented");

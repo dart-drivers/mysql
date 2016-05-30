@@ -3,7 +3,7 @@ part of sqljocky;
 class _CloseStatementHandler extends _Handler {
   final int _handle;
 
-  _CloseStatementHandler(int this._handle) {
+  _CloseStatementHandler(this._handle) {
     log = new Logger("CloseStatementHandler");
   }
 

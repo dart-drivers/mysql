@@ -1,10 +1,8 @@
 part of sqljocky;
 
-/**
- * Maintains a pool of database connections. When queries are executed, if there is
- * a free connection it will be used, otherwise the query is queued until a connection is
- * free.
- */
+ /// Maintains a pool of database connections. When queries are executed, if there is
+ /// a free connection it will be used, otherwise the query is queued until a connection is
+ /// free.
 class ConnectionPool extends Object
     with _ConnectionHelpers
     implements QueriableConnection {
@@ -20,11 +18,9 @@ class ConnectionPool extends Object
   final int _maxPacketSize;
   int _max;
 
-  /*
-   * The pool maintains a queue of connection requests. When a connection completes, if there
-   * is a connection in the queue then it is 'activated' - that is, the future returned
-   * by _getConnection() completes.
-   */
+  /// The pool maintains a queue of connection requests. When a connection completes, if there
+  /// is a connection in the queue then it is 'activated' - that is, the future returned
+  /// by _getConnection() completes.
   final Queue<Completer<_Connection>> _pendingConnections;
   /*
    * If you need a particular connection, put an entry in _requestedConnections. As soon as
@@ -34,15 +30,13 @@ class ConnectionPool extends Object
   final Map<_Connection, Queue<Completer>> _requestedConnections;
   final List<_Connection> _pool;
 
-/**
- * Creates a [ConnectionPool]. When connections are required they will connect to the
- * [db] on the given [host] and [port], using the [user] and [password]. The [max] number
- * of simultaneous connections can also be specified, as well as the [maxPacketSize].
- *
- * Note that no connections are created at this point, so any connection errors
- * will happen when the pool is used. If you need to find out if the connection
- * details are correct you might want to run a dummy query such as 'SELECT 1'.
- */
+  /// Creates a [ConnectionPool]. When connections are required they will connect to the
+  /// [db] on the given [host] and [port], using the [user] and [password]. The [max] number
+  /// of simultaneous connections can also be specified, as well as the [maxPacketSize].
+  ///
+  /// Note that no connections are created at this point, so any connection errors
+  /// will happen when the pool is used. If you need to find out if the connection
+  /// details are correct you might want to run a dummy query such as 'SELECT 1'.
   ConnectionPool(
       {String host: 'localhost',
       int port: 3306,
@@ -122,15 +116,13 @@ class ConnectionPool extends Object
     _pool.remove(cnx);
   }
 
-  /**
-   * Attempts to continue using a connection. If the connection isn't managed
-   * by this pool, or if the connection is already in use, nothing happens.
-   *
-   * If there are operations which have been queued in this pool, starts
-   * to execute that operation.
-   *
-   * Otherwise, nothing happens.
-   */
+  /// Attempts to continue using a connection. If the connection isn't managed
+  /// by this pool, or if the connection is already in use, nothing happens.
+  ///
+  /// If there are operations which have been queued in this pool, starts
+  /// to execute that operation.
+  ///
+  /// Otherwise, nothing happens.
   _reuseConnectionForQueuedOperations(_Connection cnx) {
     if (!_pool.contains(cnx)) {
       _log.warning("reuseConnection called for unmanaged connection");
@@ -168,11 +160,9 @@ class ConnectionPool extends Object
 //    });
 //  }
 
-  /**
-   * Closes all open connections immediately. It doesn't wait for operations to complete.
-   *
-   * WARNING: this will probably break things.
-   */
+  /// Closes all open connections immediately. It doesn't wait for operations to complete.
+  ///
+  /// WARNING: this will probably break things.
   void closeConnectionsNow() {
     for (_Connection cnx in _pool.toList()) {
       if (cnx != null) {
@@ -181,17 +171,15 @@ class ConnectionPool extends Object
     }
   }
 
-  /**
-   * Closes all connections as soon as they are no longer in use.
-   *
-   * Retained connections will only be closed once they have been released.
-   * Connection which are in use by a transaction will only be closed
-   * once the transaction has completed.
-   *
-   * Any operations which are initiated after calling this method will be
-   * executed on new connections, even if the current operations haven't
-   * yet finished when the operation is queued.
-   */
+  /// Closes all connections as soon as they are no longer in use.
+  ///
+  /// Retained connections will only be closed once they have been released.
+  /// Connection which are in use by a transaction will only be closed
+  /// once the transaction has completed.
+  ///
+  /// Any operations which are initiated after calling this method will be
+  /// executed on new connections, even if the current operations haven't
+  /// yet finished when the operation is queued.
   void closeConnectionsWhenNotInUse() {
     for (_Connection cnx in _pool.toList()) {
       if (cnx != null) {
@@ -201,22 +189,20 @@ class ConnectionPool extends Object
   }
 
   Future<Results> query(String sql) async {
-    _log.info("Running query: ${sql}");
+    _log.info("Running query: $sql");
 
     var cnx = await _getConnection();
     _log.fine("Got cnx#${cnx.number} for query");
     try {
       var results = await cnx.processHandler(new _QueryStreamHandler(sql));
-      _log.fine("Got query results on #${cnx.number} for: ${sql}");
+      _log.fine("Got query results on #${cnx.number} for: $sql");
       return results;
     } catch (e) {
       _releaseReuseThrow(cnx, e);
     }
   }
 
-/**
-   * Pings the server. Returns a [Future] that completes when the server replies.
-   */
+  /// Pings the server. Returns a [Future] that completes when the server replies.
   Future ping() async {
     _log.info("Pinging server");
 
@@ -226,10 +212,8 @@ class ConnectionPool extends Object
     return x;
   }
 
-/**
-   * Sends a debug message to the server. Returns a [Future] that completes
-   * when the server replies.
-   */
+  /// Sends a debug message to the server. Returns a [Future] that completes
+  /// when the server replies.
   Future debug() async {
     _log.info("Sending debug message");
 
@@ -264,10 +248,8 @@ class ConnectionPool extends Object
     }
   }
 
-  /**
-   * The future returned by [_waitUntilReady] fires when the connection is next available
-   * to be used.
-   */
+  /// The future returned by [_waitUntilReady] fires when the connection is next available
+  /// to be used.
   Future<_Connection> _waitUntilReady(_Connection cnx) {
     var c = new Completer<_Connection>();
     if (!cnx.inUse) {
@@ -291,17 +273,15 @@ class ConnectionPool extends Object
     return query;
   }
 
-/**
-   * Starts a transaction. Returns a [Future]<[Transaction]> that completes
-   * when the transaction has been started. If [consistent] is true, the
-   * transaction is started with consistent snapshot. A transaction holds
-   * onto its connection until closed (committed or rolled back). You
-   * must use this method rather than `query('start transaction')` otherwise
-   * subsequent queries may get executed on other connections which are not
-   * in the transaction. Likewise, you must use the [Transaction.commit]
-   * and [Transaction.rollback] methods to commit and roll back, otherwise
-   * the connection will not be released.
-   */
+  /// Starts a transaction. Returns a [Future]<[Transaction]> that completes
+  /// when the transaction has been started. If [consistent] is true, the
+  /// transaction is started with consistent snapshot. A transaction holds
+  /// onto its connection until closed (committed or rolled back). You
+  /// must use this method rather than `query('start transaction')` otherwise
+  /// subsequent queries may get executed on other connections which are not
+  /// in the transaction. Likewise, you must use the [Transaction.commit]
+  /// and [Transaction.rollback] methods to commit and roll back, otherwise
+  /// the connection will not be released.
   Future<Transaction> startTransaction({bool consistent: false}) async {
     _log.info("Starting transaction");
 
@@ -322,19 +302,17 @@ class ConnectionPool extends Object
     }
   }
 
-/**
-   * Gets a persistent connection to the database.
-   *
-   * When you execute a query on the connection pool, it waits until a free
-   * connection is available, executes the query and then returns the connection
-   * back to the connection pool. Sometimes there may be cases where you want
-   * to keep the same connection around for subsequent queries (such as when
-   * you lock tables). Use this method to get a connection which isn't released
-   * after each query.
-   *
-   * You must use [RetainedConnection.release] when you have finished with the
-   * connection, otherwise it will not be available in the pool again.
-   */
+  /// Gets a persistent connection to the database.
+  ///
+  /// When you execute a query on the connection pool, it waits until a free
+  /// connection is available, executes the query and then returns the connection
+  /// back to the connection pool. Sometimes there may be cases where you want
+  /// to keep the same connection around for subsequent queries (such as when
+  /// you lock tables). Use this method to get a connection which isn't released
+  /// after each query.
+  ///
+  /// You must use [RetainedConnection.release] when you have finished with the
+  /// connection, otherwise it will not be available in the pool again.
   Future<RetainedConnection> getConnection() async {
     _log.info("Retaining connection");
 
@@ -375,22 +353,16 @@ abstract class _ConnectionHelpers {
 }
 
 abstract class QueriableConnection {
-/**
-   * Executes the [sql] query, returning a [Future]<[Results]> that completes
-   * when the results start to become available.
-   */
+  /// Executes the [sql] query, returning a [Future]<[Results]> that completes
+  /// when the results start to become available.
   Future<Results> query(String sql);
 
-/**
-   * Prepares a query with the given [sql]. Returns a [Future<Query>] that
-   * completes when the query has been prepared.
-   */
+  /// Prepares a query with the given [sql]. Returns a [Future<Query>] that
+  /// completes when the query has been prepared.
   Future<Query> prepare(String sql);
 
-/**
-   * Prepares and executes the [sql] with the given list of [parameters].
-   * Returns a [Future]<[Results]> that completes when the query has been
-   * executed.
-   */
+  /// Prepares and executes the [sql] with the given list of [parameters].
+  /// Returns a [Future]<[Results]> that completes when the query has been
+  /// executed.
   Future<Results> prepareExecute(String sql, List<dynamic> parameters);
 }

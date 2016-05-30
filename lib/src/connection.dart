@@ -81,12 +81,10 @@ class _Connection {
     lifecycleLog.finest("Release connection #$number");
   }
 
-  /**
-   * Connects to the given [host] on [port], authenticates using [user]
-   * and [password] and connects to [db]. Returns a future which completes
-   * when this has happened. The future's value is an OkPacket if the connection
-   * is succesful.
-   */
+  /// Connects to the given [host] on [port], authenticates using [user]
+  /// and [password] and connects to [db]. Returns a future which completes
+  /// when this has happened. The future's value is an OkPacket if the connection
+  /// is succesful.
   Future connect(
       {String host,
       int port,
@@ -144,7 +142,7 @@ class _Connection {
   }
 
   _readPacket() async {
-    log.fine("readPacket readyForHeader=${_readyForHeader}");
+    log.fine("readPacket readyForHeader=$_readyForHeader");
     if (_readyForHeader) {
       _readyForHeader = false;
       var buffer = await _socket.readBuffer(_headerBuffer);
@@ -155,7 +153,7 @@ class _Connection {
   _handleHeader(buffer) async {
     _dataSize = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16);
     _packetNumber = buffer[3];
-    log.fine("about to read $_dataSize bytes for packet ${_packetNumber}");
+    log.fine("about to read $_dataSize bytes for packet $_packetNumber");
     _dataBuffer = new Buffer(_dataSize);
     log.fine("buffer size=${_dataBuffer.length}");
     if (_dataSize == 0xffffff || _largePacketBuffers.length > 0) {
@@ -300,12 +298,10 @@ class _Connection {
     }
   }
 
-  /**
-   * Processes a handler, from sending the initial request to handling any packets returned from
-   * mysql (unless [noResponse] is true).
-   *
-   * Returns a future
-   */
+  /// Processes a handler, from sending the initial request to handling any packets returned from
+  /// mysql (unless [noResponse] is true).
+  ///
+  /// Returns a future
   Future<dynamic> processHandler(_Handler handler,
       {bool noResponse: false}) async {
     if (_handler != null) {

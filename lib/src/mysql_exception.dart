@@ -1,8 +1,6 @@
 part of sqljocky;
 
-/**
- * An exception which is returned by the MySQL server.
- */
+ /// An exception which is returned by the MySQL server.
 class MySqlException implements Exception {
   int _errorNumber;
   String _sqlState;
@@ -17,9 +15,7 @@ class MySqlException implements Exception {
   /// A textual description of the error
   String get message => _message;
 
-  /**
-   * Create a [MySqlException] based on an error response from the mysql server
-   */
+  /// Create a [MySqlException] based on an error response from the mysql server
   MySqlException._(Buffer buffer) {
     buffer.seek(1);
     _errorNumber = buffer.readUint16();

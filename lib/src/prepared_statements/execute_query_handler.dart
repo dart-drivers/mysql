@@ -19,8 +19,8 @@ class _ExecuteQueryHandler extends _Handler {
   bool _executed;
   bool _cancelled = false;
 
-  _ExecuteQueryHandler(_PreparedQuery this._preparedQuery, bool this._executed,
-      List this._values) {
+  _ExecuteQueryHandler(this._preparedQuery, this._executed,
+      this._values) {
     _fieldPackets = <_FieldImpl>[];
     log = new Logger("ExecuteQueryHandler");
   }
