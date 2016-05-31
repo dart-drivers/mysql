@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _Connection {
   static const int HEADER_SIZE = 4;

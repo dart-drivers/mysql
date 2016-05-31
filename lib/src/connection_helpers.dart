@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 abstract class _ConnectionHelpers {
   _releaseReuseThrow(_Connection cnx, dynamic e) {

@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _TransactionPool extends _ConnectionPoolImpl {
   final _Connection cnx;

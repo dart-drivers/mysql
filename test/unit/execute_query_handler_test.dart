@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 void runExecuteQueryHandlerTests() {
   group('ExecuteQueryHandler._createNullMap', () {

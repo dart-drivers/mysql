@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// An exception which is returned by the MySQL server.
 class MySqlException implements Exception {

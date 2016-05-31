@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _ResultsImpl extends StreamView<Row> implements Results {
   final int insertId;

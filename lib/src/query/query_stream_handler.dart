@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _QueryStreamHandler extends _Handler {
   static const int STATE_HEADER_PACKET = 0;

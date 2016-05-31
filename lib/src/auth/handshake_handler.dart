@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _HandshakeHandler extends _Handler {
   static const String MYSQL_NATIVE_PASSWORD = "mysql_native_password";

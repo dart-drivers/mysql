@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// Maintains a pool of database connections. When queries are executed, if there is
 /// a free connection it will be used, otherwise the query is queued until a connection is

@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// An error which is thrown when the client is used improperly.
 class MySqlClientError extends Error {

@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _SSLHandler extends _Handler {
   final int _clientFlags;

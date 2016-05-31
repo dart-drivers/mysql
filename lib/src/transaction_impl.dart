@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _TransactionImpl extends _RetainedConnectionBase implements Transaction {
   _TransactionImpl._(cnx, pool) : super._(cnx, pool);

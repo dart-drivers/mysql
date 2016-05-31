@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _StandardDataPacket extends Row {
   final List<dynamic> values;

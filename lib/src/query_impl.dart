@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// Query is created by `ConnectionPool.prepare(sql)` and `Transaction.prepare(sql)`. It holds
 /// a prepared query.

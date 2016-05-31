@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 void runFieldByNameTests() {
   group('field by name, standard data packets:', () {

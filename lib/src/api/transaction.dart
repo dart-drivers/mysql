@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// Start a transaction by using [ConnectionPool.startTransaction]. Once a transaction
 /// is started it retains its connection until the transaction is committed or rolled

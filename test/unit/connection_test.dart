@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 void runConnectionTests() {
   group('Connection', () {

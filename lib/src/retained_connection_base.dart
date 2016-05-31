@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 abstract class _RetainedConnectionBase extends Object
     with _ConnectionHelpers
