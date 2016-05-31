@@ -111,6 +111,7 @@ Things to do
 ------------
 
 * Compression
+* Test compressed connections
 * COM_SEND_LONG_DATA
 * CLIENT_MULTI_STATEMENTS and CLIENT_MULTI_RESULTS for stored procedures
 * More connection pool management (close after timeout, change pool size...)

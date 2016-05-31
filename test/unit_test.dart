@@ -1,4 +1,4 @@
-library sqljocky;
+library sqljocky_impl;
 
 import 'dart:async';
 import 'dart:collection';
@@ -10,7 +10,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:logging/logging.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sqljocky/constants.dart';
+import 'package:sqljocky/src/constants.dart';
 import 'package:sqljocky/src/buffer.dart';
 import 'package:sqljocky/src/buffered_socket.dart';
 import 'package:sqljocky/src/results.dart';

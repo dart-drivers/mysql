@@ -10,7 +10,7 @@ import 'dart:math' as math;
 import 'package:crypto/crypto.dart';
 import 'package:logging/logging.dart';
 
-import '../constants.dart';
+import 'constants.dart';
 
 import 'buffer.dart';
 import 'buffered_socket.dart';
