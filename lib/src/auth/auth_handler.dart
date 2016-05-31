@@ -1,6 +1,6 @@
 part of sqljocky_impl;
 
-class _AuthHandler extends _Handler {
+class AuthHandler extends _Handler {
   final String _username;
   final String _password;
   final String _db;
@@ -10,14 +10,14 @@ class _AuthHandler extends _Handler {
   final int _characterSet;
   final bool _ssl;
 
-  _AuthHandler(this._username, this._password, this._db, this._scrambleBuffer,
+  AuthHandler(this._username, this._password, this._db, this._scrambleBuffer,
       this._clientFlags, this._maxPacketSize, this._characterSet,
       {bool ssl: false})
       : this._ssl = false {
     log = new Logger("AuthHandler");
   }
 
-  List<int> _getHash() {
+  List<int> getHash() {
     List<int> hash;
     if (_password == null) {
       hash = <int>[];
@@ -38,7 +38,7 @@ class _AuthHandler extends _Handler {
 
   Buffer createRequest() {
     // calculate the mysql password hash
-    var hash = _getHash();
+    var hash = getHash();
 
     var encodedUsername = _username == null ? [] : UTF8.encode(_username);
     var encodedDb;

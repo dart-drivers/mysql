@@ -77,7 +77,7 @@ class _HandshakeHandler extends _Handler {
     }
   }
 
-  /// After receiving the handshake packet, if all is well, an [_AuthHandler]
+  /// After receiving the handshake packet, if all is well, an [AuthHandler]
   /// is created and returned to handle authentication.
   ///
   /// Currently, if the client protocol version is not 4.1, an
@@ -126,12 +126,12 @@ class _HandshakeHandler extends _Handler {
           clientFlags,
           _maxPacketSize,
           CharacterSet.UTF8,
-          new _AuthHandler(_user, _password, _db, scrambleBuffer, clientFlags,
+          new AuthHandler(_user, _password, _db, scrambleBuffer, clientFlags,
               _maxPacketSize, CharacterSet.UTF8,
               ssl: true)));
     }
 
-    return new _HandlerResponse(nextHandler: new _AuthHandler(_user, _password,
+    return new _HandlerResponse(nextHandler: new AuthHandler(_user, _password,
         _db, scrambleBuffer, clientFlags, _maxPacketSize, CharacterSet.UTF8));
   }
 }

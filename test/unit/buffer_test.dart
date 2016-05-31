@@ -1,4 +1,4 @@
-part of sqljocky_impl;
+part of unittests;
 
 void runBufferTests() {
   group('buffer:', () {

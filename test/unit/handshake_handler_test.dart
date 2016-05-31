@@ -1,4 +1,4 @@
-part of sqljocky_impl;
+part of unittests;
 
 const int MAX_PACKET_SIZE = 16 * 1024 * 1024;
 
