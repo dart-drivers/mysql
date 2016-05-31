@@ -18,19 +18,26 @@ import 'package:test/test.dart';
 
 import 'unit/buffered_socket_test.dart';
 
+part '../lib/src/api/blob.dart';
+part '../lib/src/api/character_set.dart';
+part '../lib/src/api/connection_pool.dart';
+part '../lib/src/api/mysql_client_error.dart';
+part '../lib/src/api/mysql_exception.dart';
+part '../lib/src/api/mysql_protocol_error.dart';
+part '../lib/src/api/queriable_connection.dart';
+part '../lib/src/api/query.dart';
+part '../lib/src/api/retained_connection.dart';
+part '../lib/src/api/transaction.dart';
+
 part '../lib/src/auth/auth_handler.dart';
 part '../lib/src/auth/handshake_handler.dart';
 part '../lib/src/auth/ssl_handler.dart';
-part '../lib/src/auth/character_set.dart';
-part '../lib/src/blob.dart';
 part '../lib/src/connection.dart';
-part '../lib/src/connection_pool.dart';
+part '../lib/src/connection_pool_impl.dart';
+part '../lib/src/connection_helpers.dart';
 part '../lib/src/handlers/handler.dart';
 part '../lib/src/handlers/ok_packet.dart';
 part '../lib/src/handlers/use_db_handler.dart';
-part '../lib/src/mysql_client_error.dart';
-part '../lib/src/mysql_exception.dart';
-part '../lib/src/mysql_protocol_error.dart';
 part '../lib/src/prepared_statements/binary_data_packet.dart';
 part '../lib/src/prepared_statements/prepare_ok_packet.dart';
 part '../lib/src/prepared_statements/execute_query_handler.dart';

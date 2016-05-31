@@ -6,23 +6,24 @@ part of sqljocky;
 /// In MySQL, a query must be prepared on a specific connection. If you execute this
 /// query and a connection is used from the pool which doesn't yet have the prepared query
 /// in its cache, it will first prepare the query on that connection before executing it.
-class Query extends Object with _ConnectionHelpers {
-  final ConnectionPool _pool;
+class _QueryImpl extends Object with _ConnectionHelpers
+    implements Query {
+  final _ConnectionPoolImpl _pool;
   final _Connection _cnx;
   final String sql;
   final Logger _log;
   final _inTransaction;
   bool _executed = false;
 
-  Query._internal(this._pool, this.sql)
+  _QueryImpl._internal(this._pool, this.sql)
       : _cnx = null,
         _inTransaction = false,
-        _log = new Logger("Query");
+        _log = new Logger("_QueryImpl");
 
-  Query._forTransaction(this._pool, _Connection cnx, this.sql)
+  _QueryImpl._forTransaction(this._pool, _Connection cnx, this.sql)
       : _cnx = cnx,
         _inTransaction = true,
-        _log = new Logger("Query");
+        _log = new Logger("_QueryImpl");
 
   Future<_Connection> _getConnection() async {
     if (_cnx != null) {

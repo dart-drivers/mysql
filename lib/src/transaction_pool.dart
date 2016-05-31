@@ -1,6 +1,6 @@
 part of sqljocky;
 
-class _TransactionPool extends ConnectionPool {
+class _TransactionPool extends _ConnectionPoolImpl {
   final _Connection cnx;
 
   _TransactionPool(this.cnx);

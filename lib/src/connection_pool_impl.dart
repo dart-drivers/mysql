@@ -1,11 +1,8 @@
 part of sqljocky;
 
-/// Maintains a pool of database connections. When queries are executed, if there is
-/// a free connection it will be used, otherwise the query is queued until a connection is
-/// free.
-class ConnectionPool extends Object
+class _ConnectionPoolImpl extends Object
     with _ConnectionHelpers
-    implements QueriableConnection {
+    implements ConnectionPool {
   final Logger _log;
 
   final String _host;
@@ -30,14 +27,7 @@ class ConnectionPool extends Object
   final Map<_Connection, Queue<Completer>> _requestedConnections;
   final List<_Connection> _pool;
 
-  /// Creates a [ConnectionPool]. When connections are required they will connect to the
-  /// [db] on the given [host] and [port], using the [user] and [password]. The [max] number
-  /// of simultaneous connections can also be specified, as well as the [maxPacketSize].
-  ///
-  /// Note that no connections are created at this point, so any connection errors
-  /// will happen when the pool is used. If you need to find out if the connection
-  /// details are correct you might want to run a dummy query such as 'SELECT 1'.
-  ConnectionPool(
+  _ConnectionPoolImpl(
       {String host: 'localhost',
       int port: 3306,
       String user,
@@ -160,9 +150,6 @@ class ConnectionPool extends Object
 //    });
 //  }
 
-  /// Closes all open connections immediately. It doesn't wait for operations to complete.
-  ///
-  /// WARNING: this will probably break things.
   void closeConnectionsNow() {
     for (_Connection cnx in _pool.toList()) {
       if (cnx != null) {
@@ -171,15 +158,6 @@ class ConnectionPool extends Object
     }
   }
 
-  /// Closes all connections as soon as they are no longer in use.
-  ///
-  /// Retained connections will only be closed once they have been released.
-  /// Connection which are in use by a transaction will only be closed
-  /// once the transaction has completed.
-  ///
-  /// Any operations which are initiated after calling this method will be
-  /// executed on new connections, even if the current operations haven't
-  /// yet finished when the operation is queued.
   void closeConnectionsWhenNotInUse() {
     for (_Connection cnx in _pool.toList()) {
       if (cnx != null) {
@@ -202,7 +180,6 @@ class ConnectionPool extends Object
     }
   }
 
-  /// Pings the server. Returns a [Future] that completes when the server replies.
   Future ping() async {
     _log.info("Pinging server");
 
@@ -212,8 +189,6 @@ class ConnectionPool extends Object
     return x;
   }
 
-  /// Sends a debug message to the server. Returns a [Future] that completes
-  /// when the server replies.
   Future debug() async {
     _log.info("Sending debug message");
 
@@ -230,7 +205,7 @@ class ConnectionPool extends Object
   // Close a prepared query on all connections which have this query.
   // This may take some time if it has to wait a long time for a
   // connection to become free.
-  _closeQuery(Query q, bool retain) async {
+  _closeQuery(_QueryImpl q, bool retain) async {
     _log.finest("Closing query: ${q.sql}");
     var thePool = new List<_Connection>();
     thePool.addAll(_pool); // prevent concurrent modification
@@ -267,21 +242,12 @@ class ConnectionPool extends Object
   }
 
   Future<Query> prepare(String sql) async {
-    var query = new Query._internal(this, sql);
+    var query = new _QueryImpl._internal(this, sql);
     await query._prepare(false);
     _log.info("Got prepared query");
     return query;
   }
 
-  /// Starts a transaction. Returns a [Future]<[Transaction]> that completes
-  /// when the transaction has been started. If [consistent] is true, the
-  /// transaction is started with consistent snapshot. A transaction holds
-  /// onto its connection until closed (committed or rolled back). You
-  /// must use this method rather than `query('start transaction')` otherwise
-  /// subsequent queries may get executed on other connections which are not
-  /// in the transaction. Likewise, you must use the [Transaction.commit]
-  /// and [Transaction.rollback] methods to commit and roll back, otherwise
-  /// the connection will not be released.
   Future<Transaction> startTransaction({bool consistent: false}) async {
     _log.info("Starting transaction");
 
@@ -302,17 +268,6 @@ class ConnectionPool extends Object
     }
   }
 
-  /// Gets a persistent connection to the database.
-  ///
-  /// When you execute a query on the connection pool, it waits until a free
-  /// connection is available, executes the query and then returns the connection
-  /// back to the connection pool. Sometimes there may be cases where you want
-  /// to keep the same connection around for subsequent queries (such as when
-  /// you lock tables). Use this method to get a connection which isn't released
-  /// after each query.
-  ///
-  /// You must use [RetainedConnection.release] when you have finished with the
-  /// connection, otherwise it will not be available in the pool again.
   Future<RetainedConnection> getConnection() async {
     _log.info("Retaining connection");
 

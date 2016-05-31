@@ -17,20 +17,25 @@ import 'src/buffered_socket.dart';
 import 'src/results.dart';
 export 'src/results.dart';
 
-part 'src/blob.dart';
+part 'src/api/blob.dart';
+part 'src/api/queriable_connection.dart';
+part 'src/api/connection_pool.dart';
+part 'src/api/transaction.dart';
+part 'src/api/retained_connection.dart';
+part 'src/api/query.dart';
+part 'src/api/mysql_exception.dart';
+part 'src/api/mysql_protocol_error.dart';
+part 'src/api/mysql_client_error.dart';
+part 'src/api/character_set.dart';
 
-part 'src/queriable_connection.dart';
-part 'src/connection_pool.dart';
+part 'src/query_impl.dart';
 part 'src/connection.dart';
+part 'src/connection_pool_impl.dart';
 part 'src/connection_helpers.dart';
-part 'src/transaction.dart';
 part 'src/transaction_pool.dart';
+part 'src/transaction_impl.dart';
 part 'src/retained_connection_base.dart';
-part 'src/retained_connection.dart';
-part 'src/query.dart';
-part 'src/mysql_exception.dart';
-part 'src/mysql_protocol_error.dart';
-part 'src/mysql_client_error.dart';
+part 'src/retained_connection_impl.dart';
 
 //general handlers
 part 'src/handlers/parameter_packet.dart';
@@ -45,7 +50,6 @@ part 'src/handlers/quit_handler.dart';
 part 'src/auth/handshake_handler.dart';
 part 'src/auth/auth_handler.dart';
 part 'src/auth/ssl_handler.dart';
-part 'src/auth/character_set.dart';
 
 //prepared statements handlers
 part 'src/prepared_statements/prepare_ok_packet.dart';
