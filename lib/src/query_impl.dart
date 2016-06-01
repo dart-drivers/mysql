@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// Query is created by `ConnectionPool.prepare(sql)` and `Transaction.prepare(sql)`. It holds
 /// a prepared query.
@@ -6,32 +6,33 @@ part of sqljocky;
 /// In MySQL, a query must be prepared on a specific connection. If you execute this
 /// query and a connection is used from the pool which doesn't yet have the prepared query
 /// in its cache, it will first prepare the query on that connection before executing it.
-class Query extends Object with _ConnectionHelpers {
-  final ConnectionPool _pool;
-  final _Connection _cnx;
+class _QueryImpl extends Object with _ConnectionHelpers
+    implements Query {
+  final _ConnectionPoolImpl _pool;
+  final Connection _cnx;
   final String sql;
   final Logger _log;
   final _inTransaction;
   bool _executed = false;
 
-  Query._internal(this._pool, this.sql)
+  _QueryImpl._internal(this._pool, this.sql)
       : _cnx = null,
         _inTransaction = false,
-        _log = new Logger("Query");
+        _log = new Logger("_QueryImpl");
 
-  Query._forTransaction(this._pool, _Connection cnx, this.sql)
+  _QueryImpl._forTransaction(this._pool, Connection cnx, this.sql)
       : _cnx = cnx,
         _inTransaction = true,
-        _log = new Logger("Query");
+        _log = new Logger("_QueryImpl");
 
-  Future<_Connection> _getConnection() async {
+  Future<Connection> _getConnection() async {
     if (_cnx != null) {
       return _cnx;
     }
     return _pool._getConnection();
   }
 
-  Future<_PreparedQuery> _prepare(bool retainConnection) async {
+  Future<PreparedQuery> _prepare(bool retainConnection) async {
     _log.fine("Getting prepared query for: $sql");
 
     var cnx = await _getConnection();
@@ -52,7 +53,7 @@ class Query extends Object with _ConnectionHelpers {
   }
 
   /// Returns true if there was already a cached query which has been used.
-  _PreparedQuery _useCachedQuery(_Connection cnx) {
+  PreparedQuery _useCachedQuery(Connection cnx) {
     var preparedQuery = cnx.getPreparedQueryFromCache(sql);
     if (preparedQuery == null) {
       return null;
@@ -62,7 +63,7 @@ class Query extends Object with _ConnectionHelpers {
     return preparedQuery;
   }
 
-  _prepareAndCacheQuery(_Connection cnx, retainConnection) async {
+  _prepareAndCacheQuery(Connection cnx, retainConnection) async {
     _log.fine("Preparing new query in cnx#${cnx.number} for: $sql");
     var handler = new _PrepareHandler(sql);
     cnx.use();
@@ -95,10 +96,10 @@ class Query extends Object with _ConnectionHelpers {
     return results;
   }
 
-  Future<Results> _execute(_PreparedQuery preparedQuery, List values,
+  Future<Results> _execute(PreparedQuery preparedQuery, List values,
       {bool retainConnection: false}) async {
     _log.finest("About to execute");
-    var handler = new _ExecuteQueryHandler(preparedQuery, _executed, values);
+    var handler = new ExecuteQueryHandler(preparedQuery, _executed, values);
     preparedQuery.cnx.autoRelease = !retainConnection;
     try {
       Results results = await preparedQuery.cnx.processHandler(handler);
@@ -137,7 +138,7 @@ class Query extends Object with _ConnectionHelpers {
     return resultList;
   }
 
-  _removeConnection(_Connection cnx) {
+  _removeConnection(Connection cnx) {
     if (!_inTransaction) {
       _pool._removeConnection(cnx);
     }

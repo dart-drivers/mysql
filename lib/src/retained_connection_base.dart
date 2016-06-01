@@ -1,24 +1,24 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 abstract class _RetainedConnectionBase extends Object
     with _ConnectionHelpers
     implements QueriableConnection {
-  _Connection _cnx;
-  ConnectionPool _pool;
+  Connection _cnx;
+  _ConnectionPoolImpl _pool;
   bool _released;
 
   _RetainedConnectionBase._(this._cnx, this._pool) : _released = false;
 
   Future<Results> query(String sql) {
     _checkReleased();
-    var handler = new _QueryStreamHandler(sql);
+    var handler = new QueryStreamHandler(sql);
     return _cnx.processHandler(handler);
   }
 
   Future<Query> prepare(String sql) async {
     _checkReleased();
     var query =
-        new Query._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
+        new _QueryImpl._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
     await query._prepare(true);
     return new Future.value(query);
   }
@@ -34,7 +34,7 @@ abstract class _RetainedConnectionBase extends Object
 
   void _checkReleased();
 
-  _removeConnection(_Connection cnx) {
+  _removeConnection(Connection cnx) {
     _pool._removeConnection(cnx);
   }
 

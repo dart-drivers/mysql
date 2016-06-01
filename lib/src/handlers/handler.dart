@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _NoResult {
   const _NoResult();
@@ -12,17 +12,17 @@ const _NO_RESULT = const _NoResult();
 /// user. If the handler needs another handler to process the response, [finished]
 /// is false, [nextHandler] contains the next handler which should process the
 /// next packet from the server, and [result] is [_NO_RESULT].
-class _HandlerResponse {
+class HandlerResponse {
   final bool finished;
   final _Handler nextHandler;
   final dynamic result;
 
   bool get hasResult => result != _NO_RESULT;
 
-  _HandlerResponse(
+  HandlerResponse(
       {this.finished: false, this.nextHandler: null, this.result: _NO_RESULT});
 
-  static final _HandlerResponse notFinished = new _HandlerResponse();
+  static final HandlerResponse notFinished = new HandlerResponse();
 }
 
 /// Each command which the mysql protocol implements is handled with a [_Handler] object.
@@ -37,11 +37,11 @@ abstract class _Handler {
   Buffer createRequest();
 
   /// Parses a [Buffer] containing the response to the command.
-  /// Returns a [_HandlerResponse]. The default
-  /// implementation returns a finished [_HandlerResponse] with
+  /// Returns a [HandlerResponse]. The default
+  /// implementation returns a finished [HandlerResponse] with
   /// a result which is obtained by calling [checkResponse]
-  _HandlerResponse processResponse(Buffer response) =>
-      new _HandlerResponse(finished: true, result: checkResponse(response));
+  HandlerResponse processResponse(Buffer response) =>
+      new HandlerResponse(finished: true, result: checkResponse(response));
 
   /// Parses the response packet to recognise Ok and Error packets.
   /// Returns an [_OkPacket] if the packet was an Ok packet, throws

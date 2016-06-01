@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:options_file/options_file.dart';
-import 'package:sqljocky/constants.dart';
+import 'package:sqljocky/src/constants.dart';
 import 'package:sqljocky/sqljocky.dart';
 import 'package:sqljocky/utils.dart';
 import 'package:test/test.dart';
@@ -65,7 +65,10 @@ void main(List<String> args) {
   runErrorTests(user, password, db, port, host);
   runBlobTests(user, password, db, port, host);
 //  runStoredProcedureTests(user, password, db, port, host);
-  // runExecuteMultiTests(user, password, db, port, host);
+
+  // currently broken
+  //runExecuteMultiTests(user, password, db, port, host);
+
 //  if (results['large_packets'] == 'true') {
   //  runLargeBlobTests(user, password, db, port, host);
 //  }

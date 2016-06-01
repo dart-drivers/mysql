@@ -1,12 +1,12 @@
-part of sqljocky;
+part of unittests;
 
 void runAuthHandlerTests() {
   group('auth_handler:', () {
     test('hash password correctly', () {
-      var handler = new _AuthHandler(
+      var handler = new AuthHandler(
           'username', 'password', 'db', [1, 2, 3, 4], 0, 100, 0);
 
-      var hash = handler._getHash();
+      var hash = handler.getHash();
 
       expect(
           hash,
@@ -40,10 +40,10 @@ void runAuthHandlerTests() {
       var characterSet = 56;
       var username = 'Boris';
       var password = 'Password';
-      var handler = new _AuthHandler(username, password, null, [1, 2, 3, 4],
+      var handler = new AuthHandler(username, password, null, [1, 2, 3, 4],
           clientFlags, maxPacketSize, characterSet);
 
-      var hash = handler._getHash();
+      var hash = handler.getHash();
       var buffer = handler.createRequest();
 
       buffer.seek(0);
@@ -64,7 +64,7 @@ void runAuthHandlerTests() {
       var username = 'iamtheuserwantingtologin';
       var password = 'wibblededee';
       var database = 'thisisthenameofthedatabase';
-      var handler = new _AuthHandler(
+      var handler = new AuthHandler(
           username,
           password,
           database,
@@ -73,7 +73,7 @@ void runAuthHandlerTests() {
           maxPacketSize,
           characterSet);
 
-      var hash = handler._getHash();
+      var hash = handler.getHash();
       var buffer = handler.createRequest();
 
       buffer.seek(0);
@@ -94,9 +94,9 @@ void runAuthHandlerTests() {
     var password = 'здрасти';
     var database = 'дтабасе';
     var handler =
-        new _AuthHandler(username, password, database, [1, 2, 3, 4], 0, 100, 0);
+        new AuthHandler(username, password, database, [1, 2, 3, 4], 0, 100, 0);
 
-    var hash = handler._getHash();
+    var hash = handler.getHash();
     var buffer = handler.createRequest();
 
     buffer.seek(0);

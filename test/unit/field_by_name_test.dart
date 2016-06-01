@@ -1,33 +1,29 @@
-part of sqljocky;
+part of unittests;
 
 void runFieldByNameTests() {
   group('field by name, standard data packets:', () {
     test('should create field index', () {
-      var handler = new _QueryStreamHandler("");
-      var field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "123";
-      handler._fieldPackets.add(field);
-      var fieldIndex = handler._createFieldIndex();
+      var handler = new QueryStreamHandler("");
+      var field = new FieldImpl.forTests(FIELD_TYPE_INT24, "123");
+      handler.fieldPackets.add(field);
+      var fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(0));
 
-      field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "_abc";
-      handler._fieldPackets.add(field);
-      fieldIndex = handler._createFieldIndex();
+      field = new FieldImpl.forTests(FIELD_TYPE_INT24, "_abc");
+      handler.fieldPackets.add(field);
+      fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(0));
 
-      field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "abc";
-      handler._fieldPackets.add(field);
-      fieldIndex = handler._createFieldIndex();
+      field = new FieldImpl.forTests(FIELD_TYPE_INT24, "abc");
+      handler.fieldPackets.add(field);
+      fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(1));
       expect(fieldIndex.keys, contains(new Symbol("abc")));
 
-      field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "a123";
-      handler._fieldPackets.clear();
-      handler._fieldPackets.add(field);
-      fieldIndex = handler._createFieldIndex();
+      field = new FieldImpl.forTests(FIELD_TYPE_INT24, "a123");
+      handler.fieldPackets.clear();
+      handler.fieldPackets.add(field);
+      fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(1));
       expect(fieldIndex.keys, contains(new Symbol("a123")));
     });
@@ -39,7 +35,7 @@ void runFieldByNameTests() {
       fieldIndex[new Symbol("three")] = 2;
       var values = [5, "hello", null];
 
-      Row row = new _StandardDataPacket._forTests(values, fieldIndex);
+      Row row = new StandardDataPacket.forTests(values, fieldIndex);
       expect(row.one, equals(5));
       expect(row.two, equals("hello"));
       expect(row.three, equals(null));
@@ -49,7 +45,7 @@ void runFieldByNameTests() {
       var fieldIndex = new Map<Symbol, int>();
       var values = [];
 
-      Row row = new _StandardDataPacket._forTests(values, fieldIndex);
+      Row row = new StandardDataPacket.forTests(values, fieldIndex);
       try {
         var x = row.one;
         expect(x, isNotNull);
@@ -62,31 +58,27 @@ void runFieldByNameTests() {
 
   group('field by name, binary data packets:', () {
     test('should create field index', () {
-      var handler = new _ExecuteQueryHandler(null, null, null);
-      var field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "123";
-      handler._fieldPackets.add(field);
-      var fieldIndex = handler._createFieldIndex();
+      var handler = new ExecuteQueryHandler(null, null, null);
+      var field = new FieldImpl.forTests(FIELD_TYPE_INT24, "123");
+      handler.fieldPackets.add(field);
+      var fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(0));
 
-      field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "_abc";
-      handler._fieldPackets.add(field);
-      fieldIndex = handler._createFieldIndex();
+      field = new FieldImpl.forTests(FIELD_TYPE_INT24, "_abc");
+      handler.fieldPackets.add(field);
+      fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(0));
 
-      field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "abc";
-      handler._fieldPackets.add(field);
-      fieldIndex = handler._createFieldIndex();
+      field = new FieldImpl.forTests(FIELD_TYPE_INT24, "abc");
+      handler.fieldPackets.add(field);
+      fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(1));
       expect(fieldIndex.keys, contains(new Symbol("abc")));
 
-      field = new _FieldImpl._forTests(FIELD_TYPE_INT24);
-      field._name = "a123";
-      handler._fieldPackets.clear();
-      handler._fieldPackets.add(field);
-      fieldIndex = handler._createFieldIndex();
+      field = new FieldImpl.forTests(FIELD_TYPE_INT24, "a123");
+      handler.fieldPackets.clear();
+      handler.fieldPackets.add(field);
+      fieldIndex = handler.createFieldIndex();
       expect(fieldIndex, hasLength(1));
       expect(fieldIndex.keys, contains(new Symbol("a123")));
     });
@@ -98,7 +90,7 @@ void runFieldByNameTests() {
       fieldIndex[new Symbol("three")] = 2;
       var values = [5, "hello", null];
 
-      Row row = new _BinaryDataPacket._forTests(values, fieldIndex);
+      Row row = new BinaryDataPacket.forTests(values, fieldIndex);
       expect(row.one, equals(5));
       expect(row.two, equals("hello"));
       expect(row.three, equals(null));
@@ -108,7 +100,7 @@ void runFieldByNameTests() {
       var fieldIndex = new Map<Symbol, int>();
       var values = [];
 
-      Row row = new _BinaryDataPacket._forTests(values, fieldIndex);
+      Row row = new BinaryDataPacket.forTests(values, fieldIndex);
       try {
         var x = row.one;
         expect(x, isNotNull);

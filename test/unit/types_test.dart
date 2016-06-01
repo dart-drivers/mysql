@@ -1,4 +1,4 @@
-part of sqljocky;
+part of unittests;
 
 void runTypesTests() {
   group('types:', () {

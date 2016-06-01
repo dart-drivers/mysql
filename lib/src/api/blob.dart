@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 /// Holds blob data, and can be created or accessed as either a [String] or a [List] of
 /// 8-bit integers.

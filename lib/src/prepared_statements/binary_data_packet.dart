@@ -1,14 +1,14 @@
-part of sqljocky;
+part of sqljocky_impl;
 
-class _BinaryDataPacket extends Row {
+class BinaryDataPacket extends Row {
   List values;
   final Map<Symbol, int> _fieldIndex;
   final Logger log;
 
-  _BinaryDataPacket._forTests(this.values, this._fieldIndex)
+  BinaryDataPacket.forTests(this.values, this._fieldIndex)
       : log = new Logger("BinaryDataPacket");
 
-  _BinaryDataPacket(Buffer buffer, List<_FieldImpl> fields, this._fieldIndex)
+  BinaryDataPacket(Buffer buffer, List<FieldImpl> fields, this._fieldIndex)
       : log = new Logger("BinaryDataPacket") {
     buffer.skip(1);
     var nulls = buffer.readList(((fields.length + 7 + 2) / 8).floor().toInt());
@@ -35,11 +35,11 @@ class _BinaryDataPacket extends Row {
         continue;
       }
       var field = fields[i];
-      values[i] = _readField(field, buffer);
+      values[i] = readField(field, buffer);
     }
   }
 
-  _readField(_FieldImpl field, Buffer buffer) {
+  readField(FieldImpl field, Buffer buffer) {
     switch (field.type) {
       case FIELD_TYPE_BLOB:
         log.fine("BLOB");

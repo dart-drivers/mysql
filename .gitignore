@@ -3,9 +3,11 @@ connection.options
 .children
 .project
 .idea
+.atom
 *.iml
 examples
 docs
+doc
 .packages
 .pub
 packages

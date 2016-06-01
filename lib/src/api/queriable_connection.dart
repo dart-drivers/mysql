@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 abstract class QueriableConnection {
   /// Executes the [sql] query, returning a [Future]<[Results]> that completes

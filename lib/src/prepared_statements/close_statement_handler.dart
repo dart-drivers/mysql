@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _CloseStatementHandler extends _Handler {
   final int _handle;

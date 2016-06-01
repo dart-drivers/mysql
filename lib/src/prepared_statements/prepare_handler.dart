@@ -1,17 +1,17 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 class _PrepareHandler extends _Handler {
   final String _sql;
   _PrepareOkPacket _okPacket;
   int _parametersToRead;
   int _columnsToRead;
-  List<_FieldImpl> _parameters;
-  List<_FieldImpl> _columns;
+  List<FieldImpl> _parameters;
+  List<FieldImpl> _columns;
 
   String get sql => _sql;
   _PrepareOkPacket get okPacket => _okPacket;
-  List<_FieldImpl> get parameters => _parameters;
-  List<_FieldImpl> get columns => _columns;
+  List<FieldImpl> get parameters => _parameters;
+  List<FieldImpl> get columns => _columns;
 
   _PrepareHandler(this._sql) {
     log = new Logger("PrepareHandler");
@@ -25,7 +25,7 @@ class _PrepareHandler extends _Handler {
     return buffer;
   }
 
-  _HandlerResponse processResponse(Buffer response) {
+  HandlerResponse processResponse(Buffer response) {
     log.fine("Prepare processing response");
     var packet = checkResponse(response, true);
     if (packet == null) {
@@ -38,7 +38,7 @@ class _PrepareHandler extends _Handler {
                 "Unexpected EOF packet; was expecting another $_parametersToRead parameter(s)");
           }
         } else {
-          var fieldPacket = new _FieldImpl._(response);
+          var fieldPacket = new FieldImpl._(response);
           log.fine("field packet: $fieldPacket");
           _parameters[_okPacket.parameterCount - _parametersToRead] =
               fieldPacket;
@@ -52,7 +52,7 @@ class _PrepareHandler extends _Handler {
                 "Unexpected EOF packet; was expecting another $_columnsToRead column(s)");
           }
         } else {
-          var fieldPacket = new _FieldImpl._(response);
+          var fieldPacket = new FieldImpl._(response);
           log.fine("field packet (column): $fieldPacket");
           _columns[_okPacket.columnCount - _columnsToRead] = fieldPacket;
         }
@@ -63,8 +63,8 @@ class _PrepareHandler extends _Handler {
       _okPacket = packet;
       _parametersToRead = packet.parameterCount;
       _columnsToRead = packet.columnCount;
-      _parameters = new List<_FieldImpl>(_parametersToRead);
-      _columns = new List<_FieldImpl>(_columnsToRead);
+      _parameters = new List<FieldImpl>(_parametersToRead);
+      _columns = new List<FieldImpl>(_columnsToRead);
       if (_parametersToRead == 0) {
         _parametersToRead = -1;
       }
@@ -75,9 +75,9 @@ class _PrepareHandler extends _Handler {
 
     if (_parametersToRead == -1 && _columnsToRead == -1) {
       log.fine("finished");
-      return new _HandlerResponse(
-          finished: true, result: new _PreparedQuery(this));
+      return new HandlerResponse(
+          finished: true, result: new PreparedQuery(this));
     }
-    return _HandlerResponse.notFinished;
+    return HandlerResponse.notFinished;
   }
 }

@@ -1,6 +1,6 @@
-part of sqljocky;
+part of sqljocky_impl;
 
-class _ExecuteQueryHandler extends _Handler {
+class ExecuteQueryHandler extends _Handler {
   static const int STATE_HEADER_PACKET = 0;
   static const int STATE_FIELD_PACKETS = 1;
   static const int STATE_ROW_PACKETS = 2;
@@ -8,40 +8,40 @@ class _ExecuteQueryHandler extends _Handler {
   int _state = STATE_HEADER_PACKET;
 
   _ResultSetHeaderPacket _resultSetHeaderPacket;
-  List<_FieldImpl> _fieldPackets;
+  List<FieldImpl> fieldPackets;
   Map<Symbol, int> _fieldIndex;
   StreamController<Row> _streamController;
 
-  final _PreparedQuery _preparedQuery;
+  final PreparedQuery _preparedQuery;
   final List _values;
-  List _preparedValues;
+  List preparedValues;
   _OkPacket _okPacket;
   bool _executed;
   bool _cancelled = false;
 
-  _ExecuteQueryHandler(this._preparedQuery, this._executed, this._values) {
-    _fieldPackets = <_FieldImpl>[];
+  ExecuteQueryHandler(this._preparedQuery, this._executed, this._values) {
+    fieldPackets = <FieldImpl>[];
     log = new Logger("ExecuteQueryHandler");
   }
 
   Buffer createRequest() {
     var length = 0;
     var types = new List<int>(_values.length * 2);
-    var nullMap = _createNullMap();
-    _preparedValues = new List(_values.length);
+    var nullMap = createNullMap();
+    preparedValues = new List(_values.length);
     for (var i = 0; i < _values.length; i++) {
       types[i * 2] = _getType(_values[i]);
       types[i * 2 + 1] = 0;
-      _preparedValues[i] = _prepareValue(_values[i]);
-      length += _measureValue(_values[i], _preparedValues[i]);
+      preparedValues[i] = prepareValue(_values[i]);
+      length += measureValue(_values[i], preparedValues[i]);
     }
 
-    var buffer = _writeValuesToBuffer(nullMap, length, types);
+    var buffer = writeValuesToBuffer(nullMap, length, types);
 //    log.fine(Buffer.listChars(buffer._list));
     return buffer;
   }
 
-  _prepareValue(value) {
+  prepareValue(value) {
     if (value != null) {
       if (value is int) {
         return _prepareInt(value);
@@ -62,7 +62,7 @@ class _ExecuteQueryHandler extends _Handler {
     return value;
   }
 
-  _measureValue(value, preparedValue) {
+  measureValue(value, preparedValue) {
     if (value != null) {
       if (value is int) {
         return _measureInt(value, preparedValue);
@@ -251,7 +251,7 @@ class _ExecuteQueryHandler extends _Handler {
     buffer.writeList(preparedValue);
   }
 
-  List<int> _createNullMap() {
+  List<int> createNullMap() {
     var bytes = ((_values.length + 7) / 8).floor().toInt();
     var nullMap = new List<int>(bytes);
     var byte = 0;
@@ -273,7 +273,7 @@ class _ExecuteQueryHandler extends _Handler {
     return nullMap;
   }
 
-  Buffer _writeValuesToBuffer(List<int> nullMap, int length, List<int> types) {
+  Buffer writeValuesToBuffer(List<int> nullMap, int length, List<int> types) {
     var buffer = new Buffer(10 + nullMap.length + 1 + types.length + length);
     buffer.writeByte(COM_STMT_EXECUTE);
     buffer.writeUint32(_preparedQuery.statementHandlerId);
@@ -284,7 +284,7 @@ class _ExecuteQueryHandler extends _Handler {
       buffer.writeByte(1);
       buffer.writeList(types);
       for (int i = 0; i < _values.length; i++) {
-        _writeValue(_values[i], _preparedValues[i], buffer);
+        _writeValue(_values[i], preparedValues[i], buffer);
       }
     } else {
       buffer.writeByte(0);
@@ -292,11 +292,11 @@ class _ExecuteQueryHandler extends _Handler {
     return buffer;
   }
 
-  _HandlerResponse processResponse(Buffer response) {
+  HandlerResponse processResponse(Buffer response) {
     var packet;
     if (_cancelled) {
       _streamController.close();
-      return new _HandlerResponse(finished: true);
+      return new HandlerResponse(finished: true);
     }
     if (_state == STATE_HEADER_PACKET) {
       packet = checkResponse(response);
@@ -325,13 +325,13 @@ class _ExecuteQueryHandler extends _Handler {
     } else if (packet is _OkPacket) {
       _okPacket = packet;
       if ((packet.serverStatus & SERVER_MORE_RESULTS_EXISTS) == 0) {
-        return new _HandlerResponse(
+        return new HandlerResponse(
             finished: true,
             result: new _ResultsImpl(
                 _okPacket.insertId, _okPacket.affectedRows, null));
       }
     }
-    return _HandlerResponse.notFinished;
+    return HandlerResponse.notFinished;
   }
 
   _handleEndOfFields() {
@@ -340,15 +340,15 @@ class _ExecuteQueryHandler extends _Handler {
     _streamController.onCancel = () {
       _cancelled = true;
     };
-    this._fieldIndex = _createFieldIndex();
-    return new _HandlerResponse(result: new _ResultsImpl(
-        null, null, _fieldPackets,
+    this._fieldIndex = createFieldIndex();
+    return new HandlerResponse(result: new _ResultsImpl(
+        null, null, fieldPackets,
         stream: _streamController.stream));
   }
 
   _handleEndOfRows() {
     _streamController.close();
-    return new _HandlerResponse(finished: true);
+    return new HandlerResponse(finished: true);
   }
 
   _handleHeaderPacket(Buffer response) {
@@ -360,24 +360,24 @@ class _ExecuteQueryHandler extends _Handler {
 
   _handleFieldPacket(Buffer response) {
     log.fine('Got a field packet');
-    var fieldPacket = new _FieldImpl._(response);
+    var fieldPacket = new FieldImpl._(response);
     log.fine(fieldPacket.toString());
-    _fieldPackets.add(fieldPacket);
+    fieldPackets.add(fieldPacket);
   }
 
   _handleRowPacket(Buffer response) {
     log.fine('Got a row packet');
     var dataPacket =
-        new _BinaryDataPacket(response, _fieldPackets, _fieldIndex);
+        new BinaryDataPacket(response, fieldPackets, _fieldIndex);
     log.fine(dataPacket.toString());
     _streamController.add(dataPacket);
   }
 
-  Map<Symbol, int> _createFieldIndex() {
+  Map<Symbol, int> createFieldIndex() {
     var identifierPattern = new RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$');
     var fieldIndex = new Map<Symbol, int>();
-    for (var i = 0; i < _fieldPackets.length; i++) {
-      var name = _fieldPackets[i].name;
+    for (var i = 0; i < fieldPackets.length; i++) {
+      var name = fieldPackets[i].name;
       if (identifierPattern.hasMatch(name)) {
         fieldIndex[new Symbol(name)] = i;
       }

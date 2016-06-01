@@ -1,4 +1,4 @@
-part of sqljocky;
+part of sqljocky_impl;
 
 // not using this one yet
 class _ParameterPacket {
