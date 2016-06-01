@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:options_file/options_file.dart';
-import 'package:sqljocky/constants.dart';
+import 'package:sqljocky/src/constants.dart';
 import 'package:sqljocky/sqljocky.dart';
 import 'package:sqljocky/utils.dart';
 import 'package:test/test.dart';
