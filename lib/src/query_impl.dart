@@ -32,7 +32,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
     return _pool._getConnection();
   }
 
-  Future<_PreparedQuery> _prepare(bool retainConnection) async {
+  Future<PreparedQuery> _prepare(bool retainConnection) async {
     _log.fine("Getting prepared query for: $sql");
 
     var cnx = await _getConnection();
@@ -53,7 +53,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
   }
 
   /// Returns true if there was already a cached query which has been used.
-  _PreparedQuery _useCachedQuery(_Connection cnx) {
+  PreparedQuery _useCachedQuery(_Connection cnx) {
     var preparedQuery = cnx.getPreparedQueryFromCache(sql);
     if (preparedQuery == null) {
       return null;
@@ -96,7 +96,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
     return results;
   }
 
-  Future<Results> _execute(_PreparedQuery preparedQuery, List values,
+  Future<Results> _execute(PreparedQuery preparedQuery, List values,
       {bool retainConnection: false}) async {
     _log.finest("About to execute");
     var handler = new ExecuteQueryHandler(preparedQuery, _executed, values);

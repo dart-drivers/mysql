@@ -76,7 +76,7 @@ class _PrepareHandler extends _Handler {
     if (_parametersToRead == -1 && _columnsToRead == -1) {
       log.fine("finished");
       return new _HandlerResponse(
-          finished: true, result: new _PreparedQuery(this));
+          finished: true, result: new PreparedQuery(this));
     }
     return _HandlerResponse.notFinished;
   }

@@ -1,6 +1,6 @@
 part of sqljocky_impl;
 
-class _HandshakeHandler extends _Handler {
+class HandshakeHandler extends _Handler {
   static const String MYSQL_NATIVE_PASSWORD = "mysql_native_password";
 
   final String _user;
@@ -20,7 +20,7 @@ class _HandshakeHandler extends _Handler {
   bool useCompression = false;
   bool useSSL = false;
 
-  _HandshakeHandler(this._user, this._password, this._maxPacketSize,
+  HandshakeHandler(this._user, this._password, this._maxPacketSize,
       [String db, bool useCompression, bool useSSL])
       : _db = db,
         this.useCompression = useCompression,
@@ -34,7 +34,7 @@ class _HandshakeHandler extends _Handler {
     throw new MySqlClientError._("Cannot create a handshake request");
   }
 
-  _readResponseBuffer(Buffer response) {
+  readResponseBuffer(Buffer response) {
     response.seek(0);
     protocolVersion = response.readByte();
     if (protocolVersion != 10) {
@@ -83,7 +83,7 @@ class _HandshakeHandler extends _Handler {
   /// Currently, if the client protocol version is not 4.1, an
   /// exception is thrown.
   _HandlerResponse processResponse(Buffer response) {
-    _readResponseBuffer(response);
+    readResponseBuffer(response);
 
     if ((serverCapabilities & CLIENT_PROTOCOL_41) == 0) {
       throw new MySqlClientError._(

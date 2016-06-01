@@ -27,8 +27,8 @@ part 'unit/types_test.dart';
 part 'unit/field_by_name_test.dart';
 part 'unit/binary_data_packet_test.dart';
 part 'unit/execute_query_handler_test.dart';
-// part 'unit/handshake_handler_test.dart';
-// part 'unit/connection_test.dart';
+part 'unit/handshake_handler_test.dart';
+part 'unit/connection_test.dart';
 
 void main() {
   runBufferTests();
@@ -40,6 +40,6 @@ void main() {
   runFieldByNameTests();
   runBinaryDataPacketTests();
   runExecuteQueryHandlerTests();
-  // runHandshakeHandlerTests();
-  // runConnectionTests();
+  runHandshakeHandlerTests();
+  runConnectionTests();
 }

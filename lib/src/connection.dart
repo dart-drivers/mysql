@@ -41,14 +41,14 @@ class _Connection {
   bool _inUse;
   bool autoRelease;
   bool inTransaction = false;
-  final Map<String, _PreparedQuery> _preparedQueryCache;
+  final Map<String, PreparedQuery> _preparedQueryCache;
 
   _Connection(this._pool, this.number, this._maxPacketSize)
       : log = new Logger("Connection"),
         lifecycleLog = new Logger("Connection.Lifecycle"),
         _headerBuffer = new Buffer(HEADER_SIZE),
         _compressedHeaderBuffer = new Buffer(COMPRESSED_HEADER_SIZE),
-        _preparedQueryCache = new Map<String, _PreparedQuery>(),
+        _preparedQueryCache = new Map<String, PreparedQuery>(),
         _inUse = false {
     _dataHandler = this._handleData;
   }
@@ -100,7 +100,7 @@ class _Connection {
 
     _user = user;
     _password = password;
-    _handler = new _HandshakeHandler(
+    _handler = new HandshakeHandler(
         user, password, _maxPacketSize, db, useCompression, useSSL);
 
     _completer = new Completer();
@@ -195,9 +195,9 @@ class _Connection {
 
     try {
       var response = _handler.processResponse(buffer);
-      if (_handler is _HandshakeHandler) {
-        _useCompression = (_handler as _HandshakeHandler).useCompression;
-        _useSSL = (_handler as _HandshakeHandler).useSSL;
+      if (_handler is HandshakeHandler) {
+        _useCompression = (_handler as HandshakeHandler).useCompression;
+        _useSSL = (_handler as HandshakeHandler).useSSL;
       }
       if (response.nextHandler != null) {
         // if handler.processResponse() returned a Handler, pass control to that handler now
@@ -321,7 +321,7 @@ class _Connection {
     return _completer.future;
   }
 
-  _PreparedQuery removePreparedQueryFromCache(String sql) {
+  PreparedQuery removePreparedQueryFromCache(String sql) {
     var preparedQuery = null;
     if (_preparedQueryCache.containsKey(sql)) {
       preparedQuery = _preparedQueryCache[sql];
@@ -330,11 +330,11 @@ class _Connection {
     return preparedQuery;
   }
 
-  _PreparedQuery getPreparedQueryFromCache(String sql) {
+  PreparedQuery getPreparedQueryFromCache(String sql) {
     return _preparedQueryCache[sql];
   }
 
-  putPreparedQueryInCache(String sql, _PreparedQuery preparedQuery) {
+  putPreparedQueryInCache(String sql, PreparedQuery preparedQuery) {
     _preparedQueryCache[sql] = preparedQuery;
   }
 

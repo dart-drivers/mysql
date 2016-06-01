@@ -52,12 +52,12 @@ void runHandshakeHandlerTests() {
     return response;
   }
 
-  group('HandshakeHandler._readResponseBuffer', () {
+  group('HandshakeHandler.readResponseBuffer', () {
     test('throws if handshake protocol is not 10', () {
-      var handler = new _HandshakeHandler("", "", MAX_PACKET_SIZE);
+      var handler = new HandshakeHandler("", "", MAX_PACKET_SIZE);
       var response = new Buffer.fromList([9]);
       expect(() {
-        handler._readResponseBuffer(response);
+        handler.readResponseBuffer(response);
       }, throwsA(new isInstanceOf<MySqlClientError>()));
     });
 
@@ -65,7 +65,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -87,7 +87,7 @@ void runHandshakeHandlerTests() {
           serverCapabilities2,
           scrambleLength,
           scrambleBuffer2);
-      handler._readResponseBuffer(responseBuffer);
+      handler.readResponseBuffer(responseBuffer);
 
       expect(handler.serverVersion, equals(serverVersion));
       expect(handler.threadId, equals(threadId));
@@ -108,8 +108,8 @@ void runHandshakeHandlerTests() {
       var responseBuffer = createHandshake(
           10, serverVersion, threadId, scrambleBuffer1, serverCapabilities);
 
-      var handler = new _HandshakeHandler("", "", MAX_PACKET_SIZE);
-      handler._readResponseBuffer(responseBuffer);
+      var handler = new HandshakeHandler("", "", MAX_PACKET_SIZE);
+      handler.readResponseBuffer(responseBuffer);
 
       expect(handler.serverVersion, equals(serverVersion));
       expect(handler.threadId, equals(threadId));
@@ -122,7 +122,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -147,7 +147,7 @@ void runHandshakeHandlerTests() {
           scrambleBuffer2,
           pluginName,
           false);
-      handler._readResponseBuffer(responseBuffer);
+      handler.readResponseBuffer(responseBuffer);
 
       expect(handler.pluginName, equals(pluginName));
     });
@@ -156,7 +156,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -181,7 +181,7 @@ void runHandshakeHandlerTests() {
           scrambleBuffer2,
           pluginName,
           true);
-      handler._readResponseBuffer(responseBuffer);
+      handler.readResponseBuffer(responseBuffer);
 
       expect(handler.pluginName, equals(pluginName));
     });
@@ -190,7 +190,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -215,7 +215,7 @@ void runHandshakeHandlerTests() {
           scrambleBuffer2,
           pluginName,
           true);
-      handler._readResponseBuffer(responseBuffer);
+      handler.readResponseBuffer(responseBuffer);
 
       expect(handler.pluginName, equals(pluginName));
     });
@@ -224,7 +224,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -249,7 +249,7 @@ void runHandshakeHandlerTests() {
           scrambleBuffer2,
           pluginName,
           true);
-      handler._readResponseBuffer(responseBuffer);
+      handler.readResponseBuffer(responseBuffer);
 
       expect(handler.pluginName, equals(pluginName));
     });
@@ -257,7 +257,7 @@ void runHandshakeHandlerTests() {
 
   group('HandshakeHandler.processResponse', () {
     test('throws if server protocol is not 4.1', () {
-      var handler = new _HandshakeHandler("", "", MAX_PACKET_SIZE);
+      var handler = new HandshakeHandler("", "", MAX_PACKET_SIZE);
       var response = createHandshake(
           10, "version 1", 123, "abcdefgh", 0, 0, 0, 0, 0, "buffer");
       expect(() {
@@ -269,7 +269,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -306,21 +306,21 @@ void runHandshakeHandlerTests() {
           CLIENT_SECURE_CONNECTION;
 
       _AuthHandler authHandler = response.nextHandler;
-      expect(authHandler._characterSet, equals(CharacterSet.UTF8));
-      expect(authHandler._username, equals(user));
-      expect(authHandler._password, equals(password));
-      expect(authHandler._scrambleBuffer,
+      expect(authHandler.characterSet, equals(CharacterSet.UTF8));
+      expect(authHandler.username, equals(user));
+      expect(authHandler.password, equals(password));
+      expect(authHandler.scrambleBuffer,
           equals((scrambleBuffer1 + scrambleBuffer2).codeUnits));
-      expect(authHandler._db, equals(db));
-      expect(authHandler._clientFlags, equals(clientFlags));
-      expect(authHandler._maxPacketSize, equals(MAX_PACKET_SIZE));
+      expect(authHandler.db, equals(db));
+      expect(authHandler.clientFlags, equals(clientFlags));
+      expect(authHandler.maxPacketSize, equals(MAX_PACKET_SIZE));
     });
 
     test('works when plugin name is set', () {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -342,7 +342,7 @@ void runHandshakeHandlerTests() {
           serverCapabilities2,
           scrambleLength,
           scrambleBuffer2,
-          _HandshakeHandler.MYSQL_NATIVE_PASSWORD,
+          HandshakeHandler.MYSQL_NATIVE_PASSWORD,
           true);
       var response = handler.processResponse(responseBuffer);
 
@@ -353,11 +353,11 @@ void runHandshakeHandlerTests() {
       expect(response.nextHandler, new isInstanceOf<_AuthHandler>());
 
       _AuthHandler authHandler = response.nextHandler;
-      expect(authHandler._username, equals(user));
-      expect(authHandler._password, equals(password));
-      expect(authHandler._scrambleBuffer,
+      expect(authHandler.username, equals(user));
+      expect(authHandler.password, equals(password));
+      expect(authHandler.scrambleBuffer,
           equals((scrambleBuffer1 + scrambleBuffer2).codeUnits));
-      expect(authHandler._db, equals(db));
+      expect(authHandler.db, equals(db));
     });
 
     test('throws if old password authentication is requested', () {
@@ -369,7 +369,7 @@ void runHandshakeHandlerTests() {
       var responseBuffer = createHandshake(
           10, serverVersion, threadId, scrambleBuffer1, serverCapabilities);
 
-      var handler = new _HandshakeHandler("", "", MAX_PACKET_SIZE);
+      var handler = new HandshakeHandler("", "", MAX_PACKET_SIZE);
       expect(() {
         handler.processResponse(responseBuffer);
       }, throwsA(new isInstanceOf<MySqlClientError>()));
@@ -379,7 +379,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -413,7 +413,7 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new _HandshakeHandler(
+      var handler = new HandshakeHandler(
           user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
@@ -453,19 +453,19 @@ void runHandshakeHandlerTests() {
 
       _SSLHandler sslHandler = response.nextHandler;
       expect(sslHandler.nextHandler, new isInstanceOf<_AuthHandler>());
-      expect(sslHandler._characterSet, equals(CharacterSet.UTF8));
-      expect(sslHandler._clientFlags, equals(clientFlags));
-      expect(sslHandler._maxPacketSize, equals(MAX_PACKET_SIZE));
+      expect(sslHandler.characterSet, equals(CharacterSet.UTF8));
+      expect(sslHandler.clientFlags, equals(clientFlags));
+      expect(sslHandler.maxPacketSize, equals(MAX_PACKET_SIZE));
 
       _AuthHandler authHandler = sslHandler.nextHandler;
-      expect(authHandler._characterSet, equals(CharacterSet.UTF8));
-      expect(authHandler._username, equals(user));
-      expect(authHandler._password, equals(password));
-      expect(authHandler._scrambleBuffer,
+      expect(authHandler.characterSet, equals(CharacterSet.UTF8));
+      expect(authHandler.username, equals(user));
+      expect(authHandler.password, equals(password));
+      expect(authHandler.scrambleBuffer,
           equals((scrambleBuffer1 + scrambleBuffer2).codeUnits));
-      expect(authHandler._db, equals(db));
-      expect(authHandler._clientFlags, equals(clientFlags));
-      expect(authHandler._maxPacketSize, equals(MAX_PACKET_SIZE));
+      expect(authHandler.db, equals(db));
+      expect(authHandler.clientFlags, equals(clientFlags));
+      expect(authHandler.maxPacketSize, equals(MAX_PACKET_SIZE));
     });
   });
 }

@@ -1,17 +1,17 @@
 part of sqljocky_impl;
 
 class AuthHandler extends _Handler {
-  final String _username;
-  final String _password;
-  final String _db;
-  final List<int> _scrambleBuffer;
-  final int _clientFlags;
-  final int _maxPacketSize;
-  final int _characterSet;
+  final String username;
+  final String password;
+  final String db;
+  final List<int> scrambleBuffer;
+  final int clientFlags;
+  final int maxPacketSize;
+  final int characterSet;
   final bool _ssl;
 
-  AuthHandler(this._username, this._password, this._db, this._scrambleBuffer,
-      this._clientFlags, this._maxPacketSize, this._characterSet,
+  AuthHandler(this.username, this.password, this.db, this.scrambleBuffer,
+      this.clientFlags, this.maxPacketSize, this.characterSet,
       {bool ssl: false})
       : this._ssl = false {
     log = new Logger("AuthHandler");
@@ -19,13 +19,13 @@ class AuthHandler extends _Handler {
 
   List<int> getHash() {
     List<int> hash;
-    if (_password == null) {
+    if (password == null) {
       hash = <int>[];
     } else {
-      var hashedPassword = sha1.convert(UTF8.encode(_password)).bytes;
+      var hashedPassword = sha1.convert(UTF8.encode(password)).bytes;
       var doubleHashedPassword = sha1.convert(hashedPassword).bytes;
       var hashedSaltedPassword = sha1
-          .convert([]..addAll(_scrambleBuffer)..addAll(doubleHashedPassword))
+          .convert([]..addAll(scrambleBuffer)..addAll(doubleHashedPassword))
           .bytes;
 
       hash = new List<int>(hashedSaltedPassword.length);
@@ -40,28 +40,28 @@ class AuthHandler extends _Handler {
     // calculate the mysql password hash
     var hash = getHash();
 
-    var encodedUsername = _username == null ? [] : UTF8.encode(_username);
+    var encodedUsername = username == null ? [] : UTF8.encode(username);
     var encodedDb;
 
     var size = hash.length + encodedUsername.length + 2 + 32;
-    var clientFlags = _clientFlags;
-    if (_db != null) {
-      encodedDb = UTF8.encode(_db);
+    var newClientFlags = clientFlags;
+    if (db != null) {
+      encodedDb = UTF8.encode(db);
       size += encodedDb.length + 1;
-      clientFlags |= CLIENT_CONNECT_WITH_DB;
+      newClientFlags |= CLIENT_CONNECT_WITH_DB;
     }
 
     var buffer = new Buffer(size);
     buffer.seekWrite(0);
-    buffer.writeUint32(clientFlags);
-    buffer.writeUint32(_maxPacketSize);
-    buffer.writeByte(_characterSet);
+    buffer.writeUint32(newClientFlags);
+    buffer.writeUint32(maxPacketSize);
+    buffer.writeByte(characterSet);
     buffer.fill(23, 0);
     buffer.writeNullTerminatedList(encodedUsername);
     buffer.writeByte(hash.length);
     buffer.writeList(hash);
 
-    if (_db != null) {
+    if (db != null) {
       buffer.writeNullTerminatedList(encodedDb);
     }
 

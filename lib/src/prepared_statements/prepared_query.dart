@@ -1,13 +1,13 @@
 part of sqljocky_impl;
 
-class _PreparedQuery {
+class PreparedQuery {
   final String sql;
   final List<FieldImpl> parameters;
   final List<FieldImpl> columns;
   final int statementHandlerId;
   _Connection cnx;
 
-  _PreparedQuery(_PrepareHandler handler)
+  PreparedQuery(_PrepareHandler handler)
       : sql = handler.sql,
         parameters = handler.parameters,
         columns = handler.columns,

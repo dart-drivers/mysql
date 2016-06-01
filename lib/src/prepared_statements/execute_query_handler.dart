@@ -12,9 +12,9 @@ class ExecuteQueryHandler extends _Handler {
   Map<Symbol, int> _fieldIndex;
   StreamController<Row> _streamController;
 
-  final _PreparedQuery _preparedQuery;
+  final PreparedQuery _preparedQuery;
   final List _values;
-  List _preparedValues;
+  List preparedValues;
   _OkPacket _okPacket;
   bool _executed;
   bool _cancelled = false;
@@ -27,21 +27,21 @@ class ExecuteQueryHandler extends _Handler {
   Buffer createRequest() {
     var length = 0;
     var types = new List<int>(_values.length * 2);
-    var nullMap = _createNullMap();
-    _preparedValues = new List(_values.length);
+    var nullMap = createNullMap();
+    preparedValues = new List(_values.length);
     for (var i = 0; i < _values.length; i++) {
       types[i * 2] = _getType(_values[i]);
       types[i * 2 + 1] = 0;
-      _preparedValues[i] = _prepareValue(_values[i]);
-      length += _measureValue(_values[i], _preparedValues[i]);
+      preparedValues[i] = prepareValue(_values[i]);
+      length += measureValue(_values[i], preparedValues[i]);
     }
 
-    var buffer = _writeValuesToBuffer(nullMap, length, types);
+    var buffer = writeValuesToBuffer(nullMap, length, types);
 //    log.fine(Buffer.listChars(buffer._list));
     return buffer;
   }
 
-  _prepareValue(value) {
+  prepareValue(value) {
     if (value != null) {
       if (value is int) {
         return _prepareInt(value);
@@ -62,7 +62,7 @@ class ExecuteQueryHandler extends _Handler {
     return value;
   }
 
-  _measureValue(value, preparedValue) {
+  measureValue(value, preparedValue) {
     if (value != null) {
       if (value is int) {
         return _measureInt(value, preparedValue);
@@ -251,7 +251,7 @@ class ExecuteQueryHandler extends _Handler {
     buffer.writeList(preparedValue);
   }
 
-  List<int> _createNullMap() {
+  List<int> createNullMap() {
     var bytes = ((_values.length + 7) / 8).floor().toInt();
     var nullMap = new List<int>(bytes);
     var byte = 0;
@@ -273,7 +273,7 @@ class ExecuteQueryHandler extends _Handler {
     return nullMap;
   }
 
-  Buffer _writeValuesToBuffer(List<int> nullMap, int length, List<int> types) {
+  Buffer writeValuesToBuffer(List<int> nullMap, int length, List<int> types) {
     var buffer = new Buffer(10 + nullMap.length + 1 + types.length + length);
     buffer.writeByte(COM_STMT_EXECUTE);
     buffer.writeUint32(_preparedQuery.statementHandlerId);
@@ -284,7 +284,7 @@ class ExecuteQueryHandler extends _Handler {
       buffer.writeByte(1);
       buffer.writeList(types);
       for (int i = 0; i < _values.length; i++) {
-        _writeValue(_values[i], _preparedValues[i], buffer);
+        _writeValue(_values[i], preparedValues[i], buffer);
       }
     } else {
       buffer.writeByte(0);
