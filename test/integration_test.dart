@@ -69,7 +69,7 @@ void main(List<String> args) {
   // currently broken
   //runExecuteMultiTests(user, password, db, port, host);
 
-//  if (results['large_packets'] == 'true') {
+ if (results['large_packets'] == 'true') {
   //  runLargeBlobTests(user, password, db, port, host);
-//  }
+ }
 }

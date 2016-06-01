@@ -4,7 +4,7 @@ class _RetainedConnectionImpl extends _RetainedConnectionBase
     implements RetainedConnection {
   _RetainedConnectionImpl._(cnx, pool) : super._(cnx, pool);
 
-  Future release() {
+  void release() {
     _checkReleased();
     _released = true;
 

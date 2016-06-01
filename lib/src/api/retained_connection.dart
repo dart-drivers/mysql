@@ -6,7 +6,7 @@ part of sqljocky_impl;
 /// again.
 abstract class RetainedConnection extends QueriableConnection {
   /// Releases the connection back to the connection pool.
-  Future release();
+  void release();
 
   bool get usingSSL;
 }
