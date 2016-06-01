@@ -6,8 +6,7 @@ part of sqljocky_impl;
 /// In MySQL, a query must be prepared on a specific connection. If you execute this
 /// query and a connection is used from the pool which doesn't yet have the prepared query
 /// in its cache, it will first prepare the query on that connection before executing it.
-class _QueryImpl extends Object with _ConnectionHelpers
-    implements Query {
+class _QueryImpl extends Object with _ConnectionHelpers implements Query {
   final _ConnectionPoolImpl _pool;
   final Connection _cnx;
   final String sql;

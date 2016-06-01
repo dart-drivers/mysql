@@ -65,8 +65,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -122,8 +122,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -156,8 +156,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -190,8 +190,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -224,8 +224,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -269,8 +269,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -320,8 +320,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -379,8 +379,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;
@@ -413,8 +413,8 @@ void runHandshakeHandlerTests() {
       var user = "bob";
       var password = "password";
       var db = "db";
-      var handler = new HandshakeHandler(
-          user, password, MAX_PACKET_SIZE, db, true, true);
+      var handler =
+          new HandshakeHandler(user, password, MAX_PACKET_SIZE, db, true, true);
       var serverVersion = "version 1";
       var threadId = 123882394;
       var serverLanguage = 9;

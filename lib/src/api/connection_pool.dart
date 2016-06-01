@@ -8,6 +8,7 @@ abstract class ConnectionPool extends QueriableConnection {
   ///
   /// WARNING: this will probably break things.
   void closeConnectionsNow();
+
   /// Closes all connections as soon as they are no longer in use.
   ///
   /// Retained connections will only be closed once they have been released.
@@ -19,12 +20,15 @@ abstract class ConnectionPool extends QueriableConnection {
   /// yet finished when the operation is queued.
   void closeConnectionsWhenNotInUse();
   Future<Results> query(String sql);
+
   /// Pings the server. Returns a [Future] that completes when the server replies.
   Future ping();
+
   /// Sends a debug message to the server. Returns a [Future] that completes
   /// when the server replies.
   Future debug();
   Future<Query> prepare(String sql);
+
   /// Starts a transaction. Returns a [Future]<[Transaction]> that completes
   /// when the transaction has been started. If [consistent] is true, the
   /// transaction is started with consistent snapshot. A transaction holds
@@ -35,6 +39,7 @@ abstract class ConnectionPool extends QueriableConnection {
   /// and [Transaction.rollback] methods to commit and roll back, otherwise
   /// the connection will not be released.
   Future<Transaction> startTransaction({bool consistent: false});
+
   /// Gets a persistent connection to the database.
   ///
   /// When you execute a query on the connection pool, it waits until a free
@@ -66,9 +71,14 @@ abstract class ConnectionPool extends QueriableConnection {
       int maxPacketSize: 16 * 1024 * 1024,
 //      bool useCompression: false,
       bool useSSL: false}) {
-        return new _ConnectionPoolImpl(host: host,
-            port: port, user: user, password: password,
-            db: db, max: max, maxPacketSize: maxPacketSize,
-            useSSL: useSSL);
-      }
+    return new _ConnectionPoolImpl(
+        host: host,
+        port: port,
+        user: user,
+        password: password,
+        db: db,
+        max: max,
+        maxPacketSize: maxPacketSize,
+        useSSL: useSSL);
+  }
 }

@@ -3,7 +3,15 @@ library sqljocky;
 
 export 'src/results.dart';
 
-export 'src/sqljocky_impl.dart' show Blob, CharacterSet,
-    ConnectionPool, MySqlException, MySqlProtocolError,
-    MySqlClientError, QueriableConnection, Query,
-    RetainedConnection, Transaction;
+export 'src/sqljocky_impl.dart'
+    show
+        Blob,
+        CharacterSet,
+        ConnectionPool,
+        MySqlException,
+        MySqlProtocolError,
+        MySqlClientError,
+        QueriableConnection,
+        Query,
+        RetainedConnection,
+        Transaction;

@@ -8,8 +8,8 @@ class SSLHandler extends _Handler {
 
   _Handler get nextHandler => _handler;
 
-  SSLHandler(this.clientFlags, this.maxPacketSize, this.characterSet,
-      this._handler) {
+  SSLHandler(
+      this.clientFlags, this.maxPacketSize, this.characterSet, this._handler) {
     log = new Logger("SSLHandler");
   }
 
