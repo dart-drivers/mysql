@@ -56,11 +56,15 @@ class MockSocket extends StreamView<RawSocketEvent> implements RawSocket {
 
   int get remotePort => null;
 
-  bool setOption(SocketOption option, bool enabled) {}
+  bool setOption(SocketOption option, bool enabled) {
+    return false;
+  }
 
   void shutdown(SocketDirection direction) {}
 
-  int write(List<int> buffer, [int offset, int count]) {}
+  int write(List<int> buffer, [int offset, int count]) {
+    return 0;
+  }
 
   void set writeEventsEnabled(bool value) {
     if (value) {
