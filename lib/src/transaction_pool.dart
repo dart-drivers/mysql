@@ -1,11 +1,11 @@
 part of sqljocky_impl;
 
 class _TransactionPool extends _ConnectionPoolImpl {
-  final _Connection cnx;
+  final Connection cnx;
 
   _TransactionPool(this.cnx);
 
-  Future<_Connection> _getConnection() => new Future.value(cnx);
+  Future<Connection> _getConnection() => new Future.value(cnx);
 
-  _removeConnection(_Connection cnx) {}
+  _removeConnection(Connection cnx) {}
 }

@@ -9,7 +9,7 @@ part of sqljocky_impl;
 class _QueryImpl extends Object with _ConnectionHelpers
     implements Query {
   final _ConnectionPoolImpl _pool;
-  final _Connection _cnx;
+  final Connection _cnx;
   final String sql;
   final Logger _log;
   final _inTransaction;
@@ -20,12 +20,12 @@ class _QueryImpl extends Object with _ConnectionHelpers
         _inTransaction = false,
         _log = new Logger("_QueryImpl");
 
-  _QueryImpl._forTransaction(this._pool, _Connection cnx, this.sql)
+  _QueryImpl._forTransaction(this._pool, Connection cnx, this.sql)
       : _cnx = cnx,
         _inTransaction = true,
         _log = new Logger("_QueryImpl");
 
-  Future<_Connection> _getConnection() async {
+  Future<Connection> _getConnection() async {
     if (_cnx != null) {
       return _cnx;
     }
@@ -53,7 +53,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
   }
 
   /// Returns true if there was already a cached query which has been used.
-  PreparedQuery _useCachedQuery(_Connection cnx) {
+  PreparedQuery _useCachedQuery(Connection cnx) {
     var preparedQuery = cnx.getPreparedQueryFromCache(sql);
     if (preparedQuery == null) {
       return null;
@@ -63,7 +63,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
     return preparedQuery;
   }
 
-  _prepareAndCacheQuery(_Connection cnx, retainConnection) async {
+  _prepareAndCacheQuery(Connection cnx, retainConnection) async {
     _log.fine("Preparing new query in cnx#${cnx.number} for: $sql");
     var handler = new _PrepareHandler(sql);
     cnx.use();
@@ -138,7 +138,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
     return resultList;
   }
 
-  _removeConnection(_Connection cnx) {
+  _removeConnection(Connection cnx) {
     if (!_inTransaction) {
       _pool._removeConnection(cnx);
     }

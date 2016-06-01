@@ -4,26 +4,26 @@ void runConnectionTests() {
   group('Connection', () {
     test('should throw error if buffer is too big', () {
       final MAX_PACKET_SIZE = 10;
-      var cnx = new _Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
       final PACKET_SIZE = 11;
       var buffer = new Buffer(PACKET_SIZE);
       expect(() {
-        cnx._sendBuffer(buffer);
+        cnx.sendBuffer(buffer);
       }, throwsA(new isInstanceOf<MySqlClientError>()));
     });
 
     test('should send buffer', () async {
       final MAX_PACKET_SIZE = 16 * 1024 * 1024;
-      var cnx = new _Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
-      cnx._socket = socket;
+      cnx.socket = socket;
 
       when(socket.writeBuffer(any)).thenReturn(new Future.value());
       when(socket.writeBufferPart(any, any, any))
           .thenReturn(new Future.value());
 
       var buffer = new Buffer.fromList([1, 2, 3]);
-      await cnx._sendBuffer(buffer);
+      await cnx.sendBuffer(buffer);
       var captured = verify(socket.writeBuffer(captureAny)).captured;
       expect(captured[0], hasLength(4));
       expect(captured[0].list, equals([3, 0, 0, 1]));
@@ -35,7 +35,7 @@ void runConnectionTests() {
       expect(captured[2], equals(3));
 
       buffer = new Buffer.fromList([1, 2, 3]);
-      await cnx._sendBuffer(buffer);
+      await cnx.sendBuffer(buffer);
       captured = verify(socket.writeBuffer(captureAny)).captured;
       expect(captured[0], hasLength(4));
       expect(captured[0].list, equals([3, 0, 0, 2]));
@@ -49,9 +49,9 @@ void runConnectionTests() {
 
     test('should send large buffer', () async {
       final MAX_PACKET_SIZE = 32 * 1024 * 1024;
-      var cnx = new _Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
-      cnx._socket = socket;
+      cnx.socket = socket;
 
       var buffers = [];
       when(socket.writeBuffer(any)).thenAnswer((mirror) {
@@ -64,7 +64,7 @@ void runConnectionTests() {
 
       final PACKET_SIZE = 17 * 1024 * 1024;
       var buffer = new Buffer(PACKET_SIZE);
-      await cnx._sendBuffer(buffer);
+      await cnx.sendBuffer(buffer);
       verify(socket.writeBuffer(any)).called(2);
       expect(buffers[0], equals([0xff, 0xff, 0xff, 1]));
       expect(buffers[1], equals([1, 0, 16, 2]));
@@ -80,14 +80,14 @@ void runConnectionTests() {
 
     test('should receive buffer', () async {
       final MAX_PACKET_SIZE = 16 * 1024 * 1024;
-      var cnx = new _Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
-      cnx._socket = socket;
+      cnx.socket = socket;
 
       var c = new Completer();
 
       var buffer;
-      cnx._dataHandler = (newBuffer) {
+      cnx.dataHandler = (newBuffer) {
         buffer = newBuffer;
         c.complete();
       };
@@ -103,7 +103,7 @@ void runConnectionTests() {
         }
       }); // 2
 
-      cnx._readPacket();
+      cnx.readPacket();
 
       await c.future;
 
@@ -113,14 +113,14 @@ void runConnectionTests() {
 
     test('should receive large buffer', () async {
       final MAX_PACKET_SIZE = 32 * 1024 * 1024;
-      var cnx = new _Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
-      cnx._socket = socket;
+      cnx.socket = socket;
 
       var c = new Completer();
 
       var buffer;
-      cnx._dataHandler = (newBuffer) {
+      cnx.dataHandler = (newBuffer) {
         buffer = newBuffer;
         c.complete();
       };
@@ -150,7 +150,7 @@ void runConnectionTests() {
       };
       when(socket.readBuffer(any)).thenAnswer(bufferReturn); // 4
 
-      cnx._readPacket();
+      cnx.readPacket();
 
       await c.future;
       verify(socket.readBuffer(any)).called(4);
@@ -165,4 +165,4 @@ void runConnectionTests() {
 
 class MockSocket extends Mock implements BufferedSocket {}
 
-class MockConnection extends Mock implements _Connection {}
+class MockConnection extends Mock implements Connection {}

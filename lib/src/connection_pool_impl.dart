@@ -18,14 +18,14 @@ class _ConnectionPoolImpl extends Object
   /// The pool maintains a queue of connection requests. When a connection completes, if there
   /// is a connection in the queue then it is 'activated' - that is, the future returned
   /// by _getConnection() completes.
-  final Queue<Completer<_Connection>> _pendingConnections;
+  final Queue<Completer<Connection>> _pendingConnections;
   /*
    * If you need a particular connection, put an entry in _requestedConnections. As soon as
    * that connection is free then the completer completes. _requestedConnections is
    * checked before _pendingConnections.
    */
-  final Map<_Connection, Queue<Completer>> _requestedConnections;
-  final List<_Connection> _pool;
+  final Map<Connection, Queue<Completer>> _requestedConnections;
+  final List<Connection> _pool;
 
   _ConnectionPoolImpl(
       {String host: 'localhost',
@@ -37,9 +37,9 @@ class _ConnectionPoolImpl extends Object
       int maxPacketSize: 16 * 1024 * 1024,
 //      bool useCompression: false,
       bool useSSL: false})
-      : _pendingConnections = new Queue<Completer<_Connection>>(),
-        _requestedConnections = new Map<_Connection, Queue<Completer>>(),
-        _pool = new List<_Connection>(),
+      : _pendingConnections = new Queue<Completer<Connection>>(),
+        _requestedConnections = new Map<Connection, Queue<Completer>>(),
+        _pool = new List<Connection>(),
         _host = host,
         _port = port,
         _user = user,
@@ -51,9 +51,9 @@ class _ConnectionPoolImpl extends Object
         _useSSL = useSSL,
         _log = new Logger("ConnectionPool");
 
-  Future<_Connection> _getConnection() {
+  Future<Connection> _getConnection() {
     _log.finest("Getting a connection");
-    var c = new Completer<_Connection>();
+    var c = new Completer<Connection>();
 
     if (_log.isLoggable(Level.FINEST)) {
       var inUseCount =
@@ -78,7 +78,7 @@ class _ConnectionPoolImpl extends Object
   }
 
   _createConnection(Completer c) async {
-    var cnx = new _Connection(this, _pool.length, _maxPacketSize);
+    var cnx = new Connection(this, _pool.length, _maxPacketSize);
     cnx.use();
     cnx.autoRelease = false;
     _pool.add(cnx);
@@ -102,7 +102,7 @@ class _ConnectionPoolImpl extends Object
     }
   }
 
-  _removeConnection(_Connection cnx) {
+  _removeConnection(Connection cnx) {
     _pool.remove(cnx);
   }
 
@@ -113,7 +113,7 @@ class _ConnectionPoolImpl extends Object
   /// to execute that operation.
   ///
   /// Otherwise, nothing happens.
-  _reuseConnectionForQueuedOperations(_Connection cnx) {
+  _reuseConnectionForQueuedOperations(Connection cnx) {
     if (!_pool.contains(cnx)) {
       _log.warning("reuseConnection called for unmanaged connection");
       return;
@@ -151,7 +151,7 @@ class _ConnectionPoolImpl extends Object
 //  }
 
   void closeConnectionsNow() {
-    for (_Connection cnx in _pool.toList()) {
+    for (Connection cnx in _pool.toList()) {
       if (cnx != null) {
         cnx.close();
       }
@@ -159,7 +159,7 @@ class _ConnectionPoolImpl extends Object
   }
 
   void closeConnectionsWhenNotInUse() {
-    for (_Connection cnx in _pool.toList()) {
+    for (Connection cnx in _pool.toList()) {
       if (cnx != null) {
         cnx.closeWhenFinished();
       }
@@ -207,7 +207,7 @@ class _ConnectionPoolImpl extends Object
   // connection to become free.
   _closeQuery(_QueryImpl q, bool retain) async {
     _log.finest("Closing query: ${q.sql}");
-    var thePool = new List<_Connection>();
+    var thePool = new List<Connection>();
     thePool.addAll(_pool); // prevent concurrent modification
     for (var cnx in thePool) {
       var preparedQuery = cnx.removePreparedQueryFromCache(q.sql);
@@ -225,8 +225,8 @@ class _ConnectionPoolImpl extends Object
 
   /// The future returned by [_waitUntilReady] fires when the connection is next available
   /// to be used.
-  Future<_Connection> _waitUntilReady(_Connection cnx) {
-    var c = new Completer<_Connection>();
+  Future<Connection> _waitUntilReady(Connection cnx) {
+    var c = new Completer<Connection>();
     if (!cnx.inUse) {
       // connection isn't in use, so use it straight away
       cnx.use();

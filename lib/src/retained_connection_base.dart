@@ -3,7 +3,7 @@ part of sqljocky_impl;
 abstract class _RetainedConnectionBase extends Object
     with _ConnectionHelpers
     implements QueriableConnection {
-  _Connection _cnx;
+  Connection _cnx;
   _ConnectionPoolImpl _pool;
   bool _released;
 
@@ -34,7 +34,7 @@ abstract class _RetainedConnectionBase extends Object
 
   void _checkReleased();
 
-  _removeConnection(_Connection cnx) {
+  _removeConnection(Connection cnx) {
     _pool._removeConnection(cnx);
   }
 
