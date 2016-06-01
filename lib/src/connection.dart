@@ -106,8 +106,8 @@ class Connection {
     _completer = new Completer();
     log.fine("opening connection to $host:$port/$db");
     BufferedSocket.connect(host, port,
-        onConnection: (socket) {
-          socket = socket;
+        onConnection: (newSocket) {
+          socket = newSocket;
         },
         onDataReady: readPacket,
         onDone: () {
