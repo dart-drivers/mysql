@@ -99,7 +99,7 @@ class _QueryImpl extends Object with _ConnectionHelpers
   Future<Results> _execute(_PreparedQuery preparedQuery, List values,
       {bool retainConnection: false}) async {
     _log.finest("About to execute");
-    var handler = new _ExecuteQueryHandler(preparedQuery, _executed, values);
+    var handler = new ExecuteQueryHandler(preparedQuery, _executed, values);
     preparedQuery.cnx.autoRelease = !retainConnection;
     try {
       Results results = await preparedQuery.cnx.processHandler(handler);

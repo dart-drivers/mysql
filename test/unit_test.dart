@@ -22,24 +22,24 @@ import 'unit/buffered_socket_test.dart';
 part 'unit/buffer_test.dart';
 part 'unit/auth_handler_test.dart';
 part 'unit/prepared_statements_test.dart';
-// part 'unit/serialize_test.dart';
-// part 'unit/types_test.dart';
-// part 'unit/field_by_name_test.dart';
-// part 'unit/binary_data_packet_test.dart';
-// part 'unit/execute_query_handler_test.dart';
+part 'unit/serialize_test.dart';
+part 'unit/types_test.dart';
+part 'unit/field_by_name_test.dart';
+part 'unit/binary_data_packet_test.dart';
+part 'unit/execute_query_handler_test.dart';
 // part 'unit/handshake_handler_test.dart';
 // part 'unit/connection_test.dart';
 
 void main() {
   runBufferTests();
   runBufferedSocketTests();
-  // runSerializationTests();
-  // runTypesTests();
+  runSerializationTests();
+  runTypesTests();
   runPreparedStatementTests();
   runAuthHandlerTests();
-  // runFieldByNameTests();
-  // runBinaryDataPacketTests();
-  // runExecuteQueryHandlerTests();
+  runFieldByNameTests();
+  runBinaryDataPacketTests();
+  runExecuteQueryHandlerTests();
   // runHandshakeHandlerTests();
   // runConnectionTests();
 }

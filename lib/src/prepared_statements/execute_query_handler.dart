@@ -1,6 +1,6 @@
 part of sqljocky_impl;
 
-class _ExecuteQueryHandler extends _Handler {
+class ExecuteQueryHandler extends _Handler {
   static const int STATE_HEADER_PACKET = 0;
   static const int STATE_FIELD_PACKETS = 1;
   static const int STATE_ROW_PACKETS = 2;
@@ -8,7 +8,7 @@ class _ExecuteQueryHandler extends _Handler {
   int _state = STATE_HEADER_PACKET;
 
   _ResultSetHeaderPacket _resultSetHeaderPacket;
-  List<FieldImpl> _fieldPackets;
+  List<FieldImpl> fieldPackets;
   Map<Symbol, int> _fieldIndex;
   StreamController<Row> _streamController;
 
@@ -19,8 +19,8 @@ class _ExecuteQueryHandler extends _Handler {
   bool _executed;
   bool _cancelled = false;
 
-  _ExecuteQueryHandler(this._preparedQuery, this._executed, this._values) {
-    _fieldPackets = <FieldImpl>[];
+  ExecuteQueryHandler(this._preparedQuery, this._executed, this._values) {
+    fieldPackets = <FieldImpl>[];
     log = new Logger("ExecuteQueryHandler");
   }
 
@@ -340,9 +340,9 @@ class _ExecuteQueryHandler extends _Handler {
     _streamController.onCancel = () {
       _cancelled = true;
     };
-    this._fieldIndex = _createFieldIndex();
+    this._fieldIndex = createFieldIndex();
     return new _HandlerResponse(result: new _ResultsImpl(
-        null, null, _fieldPackets,
+        null, null, fieldPackets,
         stream: _streamController.stream));
   }
 
@@ -362,22 +362,22 @@ class _ExecuteQueryHandler extends _Handler {
     log.fine('Got a field packet');
     var fieldPacket = new FieldImpl._(response);
     log.fine(fieldPacket.toString());
-    _fieldPackets.add(fieldPacket);
+    fieldPackets.add(fieldPacket);
   }
 
   _handleRowPacket(Buffer response) {
     log.fine('Got a row packet');
     var dataPacket =
-        new BinaryDataPacket(response, _fieldPackets, _fieldIndex);
+        new BinaryDataPacket(response, fieldPackets, _fieldIndex);
     log.fine(dataPacket.toString());
     _streamController.add(dataPacket);
   }
 
-  Map<Symbol, int> _createFieldIndex() {
+  Map<Symbol, int> createFieldIndex() {
     var identifierPattern = new RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$');
     var fieldIndex = new Map<Symbol, int>();
-    for (var i = 0; i < _fieldPackets.length; i++) {
-      var name = _fieldPackets[i].name;
+    for (var i = 0; i < fieldPackets.length; i++) {
+      var name = fieldPackets[i].name;
       if (identifierPattern.hasMatch(name)) {
         fieldIndex[new Symbol(name)] = i;
       }

@@ -27,7 +27,7 @@ class FieldImpl implements Field {
   int get decimals => _decimals;
   int get defaultValue => _defaultValue;
 
-  FieldImpl.forTests(this._type);
+  FieldImpl.forTests(this._type, [this._name]);
 
   FieldImpl._(Buffer buffer) {
     _catalog = buffer.readLengthCodedString();

@@ -172,7 +172,7 @@ class _ConnectionPoolImpl extends Object
     var cnx = await _getConnection();
     _log.fine("Got cnx#${cnx.number} for query");
     try {
-      var results = await cnx.processHandler(new _QueryStreamHandler(sql));
+      var results = await cnx.processHandler(new QueryStreamHandler(sql));
       _log.fine("Got query results on #${cnx.number} for: $sql");
       return results;
     } catch (e) {
@@ -260,7 +260,7 @@ class _ConnectionPoolImpl extends Object
       sql = "start transaction";
     }
     try {
-      await cnx.processHandler(new _QueryStreamHandler(sql));
+      await cnx.processHandler(new QueryStreamHandler(sql));
       _log.fine("Transaction started on cnx#${cnx.number}");
       return new _TransactionImpl._(cnx, this);
     } catch (e) {

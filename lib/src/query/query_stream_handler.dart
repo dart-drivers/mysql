@@ -1,6 +1,6 @@
 part of sqljocky_impl;
 
-class _QueryStreamHandler extends _Handler {
+class QueryStreamHandler extends _Handler {
   static const int STATE_HEADER_PACKET = 0;
   static const int STATE_FIELD_PACKETS = 1;
   static const int STATE_ROW_PACKETS = 2;
@@ -9,14 +9,14 @@ class _QueryStreamHandler extends _Handler {
 
   _OkPacket _okPacket;
   _ResultSetHeaderPacket _resultSetHeaderPacket;
-  List<FieldImpl> _fieldPackets;
+  List<FieldImpl> fieldPackets;
   Map<Symbol, int> _fieldIndex;
 
   StreamController<Row> _streamController;
 
-  _QueryStreamHandler(this._sql) {
+  QueryStreamHandler(this._sql) {
     log = new Logger("QueryStreamHandler");
-    _fieldPackets = <FieldImpl>[];
+    fieldPackets = <FieldImpl>[];
   }
 
   Buffer createRequest() {
@@ -61,9 +61,9 @@ class _QueryStreamHandler extends _Handler {
     _streamController = new StreamController<Row>(onCancel: () {
       _streamController.close();
     });
-    this._fieldIndex = _createFieldIndex();
+    this._fieldIndex = createFieldIndex();
     return new _HandlerResponse(result: new _ResultsImpl(
-        null, null, _fieldPackets,
+        null, null, fieldPackets,
         stream: _streamController.stream));
   }
 
@@ -84,12 +84,12 @@ class _QueryStreamHandler extends _Handler {
   _handleFieldPacket(Buffer response) {
     var fieldPacket = new FieldImpl._(response);
     log.fine(fieldPacket.toString());
-    _fieldPackets.add(fieldPacket);
+    fieldPackets.add(fieldPacket);
   }
 
   _handleRowPacket(Buffer response) {
     var dataPacket =
-        new _StandardDataPacket(response, _fieldPackets, _fieldIndex);
+        new StandardDataPacket(response, fieldPackets, _fieldIndex);
     log.fine(dataPacket.toString());
     _streamController.add(dataPacket);
   }
@@ -106,14 +106,14 @@ class _QueryStreamHandler extends _Handler {
     return new _HandlerResponse(
         finished: finished,
         result: new _ResultsImpl(
-            _okPacket.insertId, _okPacket.affectedRows, _fieldPackets));
+            _okPacket.insertId, _okPacket.affectedRows, fieldPackets));
   }
 
-  Map<Symbol, int> _createFieldIndex() {
+  Map<Symbol, int> createFieldIndex() {
     var identifierPattern = new RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$');
     var fieldIndex = new Map<Symbol, int>();
-    for (var i = 0; i < _fieldPackets.length; i++) {
-      var name = _fieldPackets[i].name;
+    for (var i = 0; i < fieldPackets.length; i++) {
+      var name = fieldPackets[i].name;
       if (identifierPattern.hasMatch(name)) {
         fieldIndex[new Symbol(name)] = i;
       }
