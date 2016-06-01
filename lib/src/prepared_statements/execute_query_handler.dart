@@ -292,11 +292,11 @@ class ExecuteQueryHandler extends _Handler {
     return buffer;
   }
 
-  _HandlerResponse processResponse(Buffer response) {
+  HandlerResponse processResponse(Buffer response) {
     var packet;
     if (_cancelled) {
       _streamController.close();
-      return new _HandlerResponse(finished: true);
+      return new HandlerResponse(finished: true);
     }
     if (_state == STATE_HEADER_PACKET) {
       packet = checkResponse(response);
@@ -325,13 +325,13 @@ class ExecuteQueryHandler extends _Handler {
     } else if (packet is _OkPacket) {
       _okPacket = packet;
       if ((packet.serverStatus & SERVER_MORE_RESULTS_EXISTS) == 0) {
-        return new _HandlerResponse(
+        return new HandlerResponse(
             finished: true,
             result: new _ResultsImpl(
                 _okPacket.insertId, _okPacket.affectedRows, null));
       }
     }
-    return _HandlerResponse.notFinished;
+    return HandlerResponse.notFinished;
   }
 
   _handleEndOfFields() {
@@ -341,14 +341,14 @@ class ExecuteQueryHandler extends _Handler {
       _cancelled = true;
     };
     this._fieldIndex = createFieldIndex();
-    return new _HandlerResponse(result: new _ResultsImpl(
+    return new HandlerResponse(result: new _ResultsImpl(
         null, null, fieldPackets,
         stream: _streamController.stream));
   }
 
   _handleEndOfRows() {
     _streamController.close();
-    return new _HandlerResponse(finished: true);
+    return new HandlerResponse(finished: true);
   }
 
   _handleHeaderPacket(Buffer response) {

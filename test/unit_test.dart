@@ -1,14 +1,9 @@
 library unittests;
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
-import 'package:logging/logging.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sqljocky/src/constants.dart';
 import 'package:sqljocky/src/buffer.dart';

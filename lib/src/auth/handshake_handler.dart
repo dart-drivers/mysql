@@ -82,7 +82,7 @@ class HandshakeHandler extends _Handler {
   ///
   /// Currently, if the client protocol version is not 4.1, an
   /// exception is thrown.
-  _HandlerResponse processResponse(Buffer response) {
+  HandlerResponse processResponse(Buffer response) {
     readResponseBuffer(response);
 
     if ((serverCapabilities & CLIENT_PROTOCOL_41) == 0) {
@@ -122,7 +122,7 @@ class HandshakeHandler extends _Handler {
     }
 
     if (useSSL) {
-      return new _HandlerResponse(nextHandler: new _SSLHandler(
+      return new HandlerResponse(nextHandler: new SSLHandler(
           clientFlags,
           _maxPacketSize,
           CharacterSet.UTF8,
@@ -131,7 +131,7 @@ class HandshakeHandler extends _Handler {
               ssl: true)));
     }
 
-    return new _HandlerResponse(nextHandler: new AuthHandler(_user, _password,
+    return new HandlerResponse(nextHandler: new AuthHandler(_user, _password,
         _db, scrambleBuffer, clientFlags, _maxPacketSize, CharacterSet.UTF8));
   }
 }

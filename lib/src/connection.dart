@@ -203,11 +203,11 @@ class Connection {
         // if handler.processResponse() returned a Handler, pass control to that handler now
         _handler = response.nextHandler;
         await sendBuffer(_handler.createRequest());
-        if (_useSSL && _handler is _SSLHandler) {
+        if (_useSSL && _handler is SSLHandler) {
           log.fine("Use SSL");
           await socket.startSSL();
           _secure = true;
-          _handler = (_handler as _SSLHandler).nextHandler;
+          _handler = (_handler as SSLHandler).nextHandler;
           await sendBuffer(_handler.createRequest());
           log.fine("Sent buffer");
           return;

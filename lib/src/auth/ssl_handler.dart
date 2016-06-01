@@ -1,6 +1,6 @@
 part of sqljocky_impl;
 
-class _SSLHandler extends _Handler {
+class SSLHandler extends _Handler {
   final int clientFlags;
   final int maxPacketSize;
   final int characterSet;
@@ -8,7 +8,7 @@ class _SSLHandler extends _Handler {
 
   _Handler get nextHandler => _handler;
 
-  _SSLHandler(this.clientFlags, this.maxPacketSize, this.characterSet,
+  SSLHandler(this.clientFlags, this.maxPacketSize, this.characterSet,
       this._handler) {
     log = new Logger("SSLHandler");
   }
