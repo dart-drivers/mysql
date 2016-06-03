@@ -107,8 +107,7 @@ class BufferedSocket {
 
   /// Writes [buffer] to the socket, and returns the same buffer in a [Future] which
   /// completes when it has all been written.
-  Future<Buffer> writeBuffer(Buffer buffer, [int start = 0,
-        int length]) {
+  Future<Buffer> writeBuffer(Buffer buffer, [int start = 0, int length]) {
     log.fine("writeBuffer length=${buffer.length}");
     if (length == null) {
       length = buffer.length;
