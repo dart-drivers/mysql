@@ -51,7 +51,7 @@ class _ConnectionPoolImpl extends Object
         _useSSL = useSSL,
         _log = new Logger("ConnectionPool");
 
-  Future<Connection> _getConnection() {
+  Future<Connection> getConnectionInternal() {
     _log.finest("Getting a connection");
     var c = new Completer<Connection>();
 
@@ -169,7 +169,7 @@ class _ConnectionPoolImpl extends Object
   Future<Results> query(String sql) async {
     _log.info("Running query: $sql");
 
-    var cnx = await _getConnection();
+    var cnx = await getConnectionInternal();
     _log.fine("Got cnx#${cnx.number} for query");
     try {
       var results = await cnx.processHandler(new QueryStreamHandler(sql));
@@ -183,7 +183,7 @@ class _ConnectionPoolImpl extends Object
   Future ping() async {
     _log.info("Pinging server");
 
-    var cnx = await _getConnection();
+    var cnx = await getConnectionInternal();
     var x = await cnx.processHandler(new _PingHandler());
     _log.fine("Pinged");
     return x;
@@ -192,7 +192,7 @@ class _ConnectionPoolImpl extends Object
   Future debug() async {
     _log.info("Sending debug message");
 
-    var cnx = await _getConnection();
+    var cnx = await getConnectionInternal();
     try {
       var x = await cnx.processHandler(new _DebugHandler());
       _log.fine("Message sent");
@@ -251,7 +251,7 @@ class _ConnectionPoolImpl extends Object
   Future<Transaction> startTransaction({bool consistent: false}) async {
     _log.info("Starting transaction");
 
-    var cnx = await _getConnection();
+    var cnx = await getConnectionInternal();
     cnx.inTransaction = true;
     var sql;
     if (consistent) {
@@ -271,7 +271,7 @@ class _ConnectionPoolImpl extends Object
   Future<RetainedConnection> getConnection() async {
     _log.info("Retaining connection");
 
-    var cnx = await _getConnection();
+    var cnx = await getConnectionInternal();
     cnx.inTransaction = true;
     return new _RetainedConnectionImpl._(cnx, this);
   }

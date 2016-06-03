@@ -28,7 +28,7 @@ class _QueryImpl extends Object with _ConnectionHelpers implements Query {
     if (_cnx != null) {
       return _cnx;
     }
-    return _pool._getConnection();
+    return _pool.getConnectionInternal();
   }
 
   Future<PreparedQuery> _prepare(bool retainConnection) async {
@@ -89,13 +89,13 @@ class _QueryImpl extends Object with _ConnectionHelpers implements Query {
     var preparedQuery = await _prepare(true);
     _log.fine("Prepared, now to execute");
     Results results =
-        await _execute(preparedQuery, values == null ? [] : values);
+        await executeInternal(preparedQuery, values == null ? [] : values);
     _log.fine(
         "Got prepared query results on #${preparedQuery.cnx.number} for: $sql");
     return results;
   }
 
-  Future<Results> _execute(PreparedQuery preparedQuery, List values,
+  Future<Results> executeInternal(PreparedQuery preparedQuery, List values,
       {bool retainConnection: false}) async {
     _log.finest("About to execute");
     var handler = new ExecuteQueryHandler(preparedQuery, _executed, values);
@@ -124,7 +124,7 @@ class _QueryImpl extends Object with _ConnectionHelpers implements Query {
     for (int i = 0; i < parameters.length; i++) {
       try {
         _log.fine("Executing query, loop $i");
-        Results results = await _execute(preparedQuery, parameters[i],
+        Results results = await executeInternal(preparedQuery, parameters[i],
             retainConnection: true);
         _log.fine("Got results, loop $i");
         Results deStreamedResults = await _ResultsImpl.destream(results);

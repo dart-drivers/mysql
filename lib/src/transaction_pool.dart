@@ -5,7 +5,7 @@ class _TransactionPool extends _ConnectionPoolImpl {
 
   _TransactionPool(this.cnx);
 
-  Future<Connection> _getConnection() => new Future.value(cnx);
+  Future<Connection> getConnectionInternal() => new Future.value(cnx);
 
   _removeConnection(Connection cnx) {}
 }

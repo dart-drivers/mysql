@@ -12,7 +12,7 @@ abstract class _ConnectionHelpers {
 abstract class QueriableConnection {
   {abstract} query()
   {abstract} prepare()
-  {abstract} preapreExecute()
+  {abstract} prepareExecute()
 }
 abstract class RetainedConnection {
   {abstract} release()
@@ -71,7 +71,7 @@ class _TransactionPool {
   _removeConnection()
 }
 class _ConnectionPoolImpl {
-  _getConnection()
+  getConnectionInternal()
   _createConnection()
   _removeConnection()
   _reuseConnectionForQueueOperation()
@@ -96,7 +96,7 @@ class _QueryImpl {
   _prepareAndCacheQuery()
   close()
   execute()
-  _execute()
+  executeInternal()
   executeMulti()
   _removeConnection()
 }
