@@ -19,7 +19,6 @@ abstract class ConnectionPool extends QueriableConnection {
   /// executed on new connections, even if the current operations haven't
   /// yet finished when the operation is queued.
   void closeConnectionsWhenNotInUse();
-  Future<Results> query(String sql);
 
   /// Pings the server. Returns a [Future] that completes when the server replies.
   Future ping();
@@ -27,7 +26,6 @@ abstract class ConnectionPool extends QueriableConnection {
   /// Sends a debug message to the server. Returns a [Future] that completes
   /// when the server replies.
   Future debug();
-  Future<Query> prepare(String sql);
 
   /// Starts a transaction. Returns a [Future]<[Transaction]> that completes
   /// when the transaction has been started. If [consistent] is true, the
@@ -52,7 +50,6 @@ abstract class ConnectionPool extends QueriableConnection {
   /// You must use [RetainedConnection.release] when you have finished with the
   /// connection, otherwise it will not be available in the pool again.
   Future<RetainedConnection> getConnection();
-  Future<Results> prepareExecute(String sql, List parameters);
 
   /// Creates a [ConnectionPool]. When connections are required they will connect to the
   /// [db] on the given [host] and [port], using the [user] and [password]. The [max] number

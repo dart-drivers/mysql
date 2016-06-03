@@ -31,13 +31,10 @@ abstract class Transaction {
 abstract class ConnectionPool {
   {abstract} closeConnectionsNow()
   {abstract} closeConnectionsWhenNotInUse()
-  {abstract} query()
   {abstract} ping()
   {abstract} debug()
-  {abstract} prepare()
   {abstract} startTransaction()
   {abstract} getConnection()
-  {abstract} prepareExecute()
 }
 abstract class Query {
   {abstract} execute()
@@ -89,6 +86,19 @@ class _ConnectionPoolImpl {
   startTransaction()
   getConnection()
   prepareExecute()
+}
+class _QueryImpl {
+  _internal()
+  _forTransaction()
+  _getConnection()
+  _prepare()
+  _useCachedQuery()
+  _prepareAndCacheQuery()
+  close()
+  execute()
+  _execute()
+  executeMulti()
+  _removeConnection()
 }
 
 _ConnectionHelpers o.. _RetainedConnectionBase
