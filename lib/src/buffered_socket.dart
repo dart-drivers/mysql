@@ -88,7 +88,7 @@ class BufferedSocket {
           onDataReady();
         }
       } else {
-        _readBuffer();
+        readBufferInternal();
       }
     } else if (event == RawSocketEvent.READ_CLOSED) {
       log.fine("READ_CLOSED");
@@ -100,19 +100,19 @@ class BufferedSocket {
     } else if (event == RawSocketEvent.WRITE) {
       log.fine("WRITE data");
       if (_writingBuffer != null) {
-        _writeBuffer();
+        writeBufferInternal();
       }
     }
   }
 
   /// Writes [buffer] to the socket, and returns the same buffer in a [Future] which
   /// completes when it has all been written.
-  Future<Buffer> writeBuffer(Buffer buffer) {
-    return writeBufferPart(buffer, 0, buffer.length);
-  }
-
-  Future<Buffer> writeBufferPart(Buffer buffer, int start, int length) {
+  Future<Buffer> writeBuffer(Buffer buffer, [int start = 0,
+        int length]) {
     log.fine("writeBuffer length=${buffer.length}");
+    if (length == null) {
+      length = buffer.length;
+    }
     if (_closed) {
       throw new StateError("Cannot write to socket, it is closed");
     }
@@ -124,12 +124,12 @@ class BufferedSocket {
     _writeOffset = start;
     _writeLength = length + start;
 
-    _writeBuffer();
+    writeBufferInternal();
 
     return _writeCompleter.future;
   }
 
-  void _writeBuffer() {
+  void writeBufferInternal() {
     log.fine("_writeBuffer offset=$_writeOffset");
     int bytesWritten = _writingBuffer.writeToSocket(
         _socket, _writeOffset, _writeLength - _writeOffset);
@@ -166,13 +166,13 @@ class BufferedSocket {
 
     if (_socket.available() > 0) {
       log.fine("readBuffer, data already ready");
-      _readBuffer();
+      readBufferInternal();
     }
 
     return _readCompleter.future;
   }
 
-  void _readBuffer() {
+  void readBufferInternal() {
     int bytesRead = _readingBuffer.readFromSocket(
         _socket, _readingBuffer.length - _readOffset);
     log.fine("read $bytesRead bytes");

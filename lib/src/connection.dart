@@ -290,7 +290,7 @@ class Connection {
     await socket.writeBuffer(_headerBuffer);
     log.fine(
         "sendBuffer body, buffer length=${buffer.length}, start=$start, len=$len");
-    await socket.writeBufferPart(buffer, start, len);
+    await socket.writeBuffer(buffer, start, len);
     if (len == 0xFFFFFF) {
       return _sendBufferPart(buffer, start + len);
     } else {

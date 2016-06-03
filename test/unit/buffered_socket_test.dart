@@ -197,7 +197,7 @@ void runBufferedSocketTests() {
       var buffer = new MockBuffer();
       when(buffer.length).thenReturn(100);
       when(buffer.writeToSocket(any, any, any)).thenReturn(25);
-      await socket.writeBufferPart(buffer, 25, 50);
+      await socket.writeBuffer(buffer, 25, 50);
       verify(buffer.writeToSocket(any, any, any)).called(2);
     });
 
