@@ -1,0 +1,109 @@
+@startuml
+/'
+<|-- extends
+<|.. implements
+o-- mixin
+'/
+
+abstract class _ConnectionHelpers {
+  _releaseReuseThrow()
+  {abstract} _removeConnection()
+}
+abstract class QueriableConnection {
+  {abstract} query()
+  {abstract} prepare()
+  {abstract} preapreExecute()
+}
+abstract class RetainedConnection {
+  {abstract} release()
+}
+abstract class _RetainedConnectionBase {
+  query()
+  prepare()
+  prepareExecute()
+  {abstract} _checkReleased()
+  _removeConnection()
+}
+abstract class Transaction {
+  {abstract} commit()
+  {abstract} rollback()
+}
+abstract class ConnectionPool {
+  {abstract} closeConnectionsNow()
+  {abstract} closeConnectionsWhenNotInUse()
+  {abstract} query()
+  {abstract} ping()
+  {abstract} debug()
+  {abstract} prepare()
+  {abstract} startTransaction()
+  {abstract} getConnection()
+  {abstract} prepareExecute()
+}
+abstract class Query {
+  {abstract} execute()
+  {abstract} executeMulti()
+}
+class Connection {
+  close()
+  closeWhenFinished()
+  inUse()
+  release()
+  connect()
+  readPacket()
+  _handleHeader()
+  _handleMoreData()
+  _handleData()
+  _finishAndReuse()
+  sendBuffer()
+  _sendBufferPart()
+  processHandlerremovePreparedQueryFromCache()
+  getPreparedQueryFromCache()
+  putPreparedQueryInCache()
+}
+class _RetainedConnectionImpl {
+  release()
+  _checkReleased()
+}
+class _TransactionImpl {
+  commit()
+  rollback()
+  _checkReleased()
+}
+class _TransactionPool {
+  _getConnection()
+  _removeConnection()
+}
+class _ConnectionPoolImpl {
+  _getConnection()
+  _createConnection()
+  _removeConnection()
+  _reuseConnectionForQueueOperation()
+  closeConnectionsNow()
+  closeConnectionsWhenNotInUse()
+  query()
+  ping()
+  debug()
+  _closeQuery()
+  _waitUntilReady()
+  prepare()
+  startTransaction()
+  getConnection()
+  prepareExecute()
+}
+
+_ConnectionHelpers o.. _RetainedConnectionBase
+_ConnectionHelpers o.. _QueryImpl
+_ConnectionHelpers o.. _ConnectionPoolImpl
+Query <|.. _QueryImpl
+ConnectionPool <|.. _ConnectionPoolImpl
+QueriableConnection <|-- Transaction
+QueriableConnection <|-- ConnectionPool
+QueriableConnection <|-- RetainedConnection
+QueriableConnection <|.. _RetainedConnectionBase
+RetainedConnection <|.. _RetainedConnectionImpl
+_RetainedConnectionBase <|-- _RetainedConnectionImpl
+Transaction <|.. _TransactionImpl
+_RetainedConnectionBase <|-- _TransactionImpl
+_ConnectionPoolImpl <|-- _TransactionPool
+
+@enduml
