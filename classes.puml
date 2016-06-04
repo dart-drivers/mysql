@@ -71,6 +71,10 @@ class _TransactionPool {
   _removeConnection()
 }
 class _ConnectionPoolImpl {
+  _pool : List<Connection>
+  _requestedConnections : Map<Connection, Queue<Completer>>
+  _pendingConnections : Queue<Completer<Connection>>
+
   getConnectionInternal()
   _createConnection()
   _removeConnection()
