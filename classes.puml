@@ -67,7 +67,7 @@ class _TransactionImpl {
   _checkReleased()
 }
 class _TransactionPool {
-  _getConnection()
+  getConnectionInternal()
   _removeConnection()
 }
 class _ConnectionPoolImpl {
