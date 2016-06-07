@@ -88,7 +88,7 @@ class BufferedSocket {
           onDataReady();
         }
       } else {
-        readBufferInternal();
+        _readBufferInternal();
       }
     } else if (event == RawSocketEvent.READ_CLOSED) {
       log.fine("READ_CLOSED");
@@ -100,7 +100,7 @@ class BufferedSocket {
     } else if (event == RawSocketEvent.WRITE) {
       log.fine("WRITE data");
       if (_writingBuffer != null) {
-        writeBufferInternal();
+        _writeBufferInternal();
       }
     }
   }
@@ -123,12 +123,12 @@ class BufferedSocket {
     _writeOffset = start;
     _writeLength = length + start;
 
-    writeBufferInternal();
+    _writeBufferInternal();
 
     return _writeCompleter.future;
   }
 
-  void writeBufferInternal() {
+  void _writeBufferInternal() {
     log.fine("_writeBuffer offset=$_writeOffset");
     int bytesWritten = _writingBuffer.writeToSocket(
         _socket, _writeOffset, _writeLength - _writeOffset);
@@ -165,13 +165,13 @@ class BufferedSocket {
 
     if (_socket.available() > 0) {
       log.fine("readBuffer, data already ready");
-      readBufferInternal();
+      _readBufferInternal();
     }
 
     return _readCompleter.future;
   }
 
-  void readBufferInternal() {
+  void _readBufferInternal() {
     int bytesRead = _readingBuffer.readFromSocket(
         _socket, _readingBuffer.length - _readOffset);
     log.fine("read $bytesRead bytes");
