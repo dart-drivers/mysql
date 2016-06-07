@@ -8,7 +8,6 @@ class Connection {
   final Logger log;
   final Logger lifecycleLog;
 
-  _ConnectionPoolImpl _pool;
   _Handler _handler;
   Completer<dynamic> _completer;
 
@@ -43,7 +42,10 @@ class Connection {
   bool inTransaction = false;
   final Map<String, PreparedQuery> _preparedQueryCache;
 
-  Connection(this._pool, this.number, this._maxPacketSize)
+  var _onClose;
+  var _onFinishAndReuse;
+
+  Connection(this._onClose, this._onFinishAndReuse, this.number, this._maxPacketSize)
       : log = new Logger("Connection"),
         lifecycleLog = new Logger("Connection.Lifecycle"),
         _headerBuffer = new Buffer(HEADER_SIZE),
@@ -57,7 +59,7 @@ class Connection {
     if (socket != null) {
       socket.close();
     }
-    _pool._removeConnection(this);
+    this._onClose(this);
   }
 
   void closeWhenFinished() {
@@ -247,7 +249,7 @@ class Connection {
           log.finest("Releasing and reusing connection #$number");
           _inUse = false;
           _handler = null;
-          _pool._reuseConnectionForQueuedOperations(this);
+          _onFinishAndReuse(this);
         }
       });
     } else {

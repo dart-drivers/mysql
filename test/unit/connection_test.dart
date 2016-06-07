@@ -4,7 +4,7 @@ void runConnectionTests() {
   group('Connection', () {
     test('should throw error if buffer is too big', () {
       final MAX_PACKET_SIZE = 10;
-      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, null, 15, MAX_PACKET_SIZE);
       final PACKET_SIZE = 11;
       var buffer = new Buffer(PACKET_SIZE);
       expect(() {
@@ -14,7 +14,7 @@ void runConnectionTests() {
 
     test('should send buffer', () async {
       final MAX_PACKET_SIZE = 16 * 1024 * 1024;
-      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
       cnx.socket = socket;
 
@@ -49,7 +49,7 @@ void runConnectionTests() {
 
     test('should send large buffer', () async {
       final MAX_PACKET_SIZE = 32 * 1024 * 1024;
-      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
       cnx.socket = socket;
 
@@ -80,7 +80,7 @@ void runConnectionTests() {
 
     test('should receive buffer', () async {
       final MAX_PACKET_SIZE = 16 * 1024 * 1024;
-      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
       cnx.socket = socket;
 
@@ -113,7 +113,7 @@ void runConnectionTests() {
 
     test('should receive large buffer', () async {
       final MAX_PACKET_SIZE = 32 * 1024 * 1024;
-      var cnx = new Connection(null, 15, MAX_PACKET_SIZE);
+      var cnx = new Connection(null, null, 15, MAX_PACKET_SIZE);
       var socket = new MockSocket();
       cnx.socket = socket;
 

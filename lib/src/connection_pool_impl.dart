@@ -78,7 +78,11 @@ class _ConnectionPoolImpl extends Object
   }
 
   _createConnection(Completer c) async {
-    var cnx = new Connection(this, _pool.length, _maxPacketSize);
+    var cnx = new Connection((cnx) {
+      _removeConnection(cnx);
+    }, (cnx) {
+      _reuseConnectionForQueuedOperations(cnx);
+    }, _pool.length, _maxPacketSize);
     cnx.use();
     cnx.autoRelease = false;
     _pool.add(cnx);
