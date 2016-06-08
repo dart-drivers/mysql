@@ -18,6 +18,8 @@ abstract class RetainedConnection {
   {abstract} release()
 }
 abstract class _RetainedConnectionBase {
+  _pool : _ConnectionPoolImpl
+  _cnx : Connection
   query()
   prepare()
   prepareExecute()

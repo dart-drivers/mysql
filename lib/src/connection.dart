@@ -79,6 +79,7 @@ class Connection {
   }
 
   void release() {
+    inTransaction = false;
     _inUse = false;
     lifecycleLog.finest("Release connection #$number");
   }
