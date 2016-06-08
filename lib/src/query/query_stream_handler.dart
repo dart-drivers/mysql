@@ -71,7 +71,7 @@ class QueryStreamHandler extends _Handler {
     // the connection's _handler field needs to have been nulled out before the stream is closed,
     // otherwise the stream will be reused in an unfinished state.
     // TODO: can we use Future.delayed elsewhere, to make reusing connections nicer?
-    new Future.delayed(new Duration(seconds: 0), _streamController.close);
+    new Future.delayed(Duration.ZERO, _streamController.close);
     return new HandlerResponse(finished: true);
   }
 

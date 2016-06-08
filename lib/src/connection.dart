@@ -241,7 +241,7 @@ class Connection {
     if (autoRelease && !retained) {
       log.finest(
           "Response finished for #$number, setting handler to null and waiting to release and reuse");
-      new Future.delayed(new Duration(seconds: 0), () {
+      new Future.delayed(Duration.ZERO, () {
         if (_closeRequested) {
           close();
           return;
