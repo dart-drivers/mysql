@@ -39,7 +39,7 @@ class Connection {
 
   bool _inUse;
   bool autoRelease;
-  bool inTransaction = false;
+  bool retained = false;
   final Map<String, PreparedQuery> _preparedQueryCache;
 
   var _onClose;
@@ -79,7 +79,7 @@ class Connection {
   }
 
   void release() {
-    inTransaction = false;
+    retained = false;
     _inUse = false;
     lifecycleLog.finest("Release connection #$number");
   }
@@ -238,7 +238,7 @@ class Connection {
   }
 
   void _finishAndReuse() {
-    if (autoRelease && !inTransaction) {
+    if (autoRelease && !retained) {
       log.finest(
           "Response finished for #$number, setting handler to null and waiting to release and reuse");
       new Future.delayed(new Duration(seconds: 0), () {

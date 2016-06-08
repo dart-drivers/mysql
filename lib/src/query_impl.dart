@@ -11,17 +11,17 @@ class _QueryImpl extends Object with _ConnectionHelpers implements Query {
   final Connection _cnx;
   final String sql;
   final Logger _log;
-  final _inTransaction;
+  final _retained;
   bool _executed = false;
 
   _QueryImpl._internal(this._pool, this.sql)
       : _cnx = null,
-        _inTransaction = false,
+        _retained = false,
         _log = new Logger("_QueryImpl");
 
-  _QueryImpl._forTransaction(this._pool, Connection cnx, this.sql)
+  _QueryImpl._forRetention(this._pool, Connection cnx, this.sql)
       : _cnx = cnx,
-        _inTransaction = true,
+        _retained = true,
         _log = new Logger("_QueryImpl");
 
   Future<Connection> _getConnection() async {
@@ -80,7 +80,7 @@ class _QueryImpl extends Object with _ConnectionHelpers implements Query {
 
   /// Closes this query and removes it from all connections in the pool.
   close() async {
-    _pool._closeQuery(this, _inTransaction);
+    _pool._closeQuery(this, _retained);
   }
 
   /// Executes the query, returning a future [Results] object.
@@ -138,7 +138,7 @@ class _QueryImpl extends Object with _ConnectionHelpers implements Query {
   }
 
   _removeConnection(Connection cnx) {
-    if (!_inTransaction) {
+    if (!_retained) {
       _pool._removeConnection(cnx);
     }
   }

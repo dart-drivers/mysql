@@ -257,7 +257,7 @@ class _ConnectionPoolImpl extends Object
     _log.info("Starting transaction");
 
     var cnx = await getConnectionInternal();
-    cnx.inTransaction = true;
+    cnx.retained = true;
     var sql;
     if (consistent) {
       sql = "start transaction with consistent snapshot";
@@ -277,7 +277,7 @@ class _ConnectionPoolImpl extends Object
     _log.info("Retaining connection");
 
     var cnx = await getConnectionInternal();
-    cnx.inTransaction = true;
+    cnx.retained = true;
     return new _RetainedConnectionImpl._(cnx, this);
   }
 

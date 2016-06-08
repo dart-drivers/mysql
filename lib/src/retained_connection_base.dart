@@ -18,7 +18,7 @@ abstract class _RetainedConnectionBase extends Object
   Future<Query> prepare(String sql) async {
     _checkReleased();
     var query =
-        new _QueryImpl._forTransaction(new _TransactionPool(_cnx), _cnx, sql);
+        new _QueryImpl._forRetention(new _TransactionPool(_cnx), _cnx, sql);
     await query._prepare(true);
     return new Future.value(query);
   }
