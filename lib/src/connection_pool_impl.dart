@@ -118,6 +118,7 @@ class _ConnectionPoolImpl extends Object
   ///
   /// Otherwise, nothing happens.
   _reuseConnectionForQueuedOperations(Connection cnx) {
+    cnx.release();
     if (!_pool.contains(cnx)) {
       _log.warning("reuseConnection called for unmanaged connection");
       return;

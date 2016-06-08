@@ -8,7 +8,6 @@ class _RetainedConnectionImpl extends _RetainedConnectionBase
     _checkReleased();
     _released = true;
 
-    _cnx.release();
     _pool._reuseConnectionForQueuedOperations(_cnx);
   }
 
