@@ -1,23 +1,40 @@
-part of sqljocky;
+library sqljocky.query_stream_handler;
 
-class _QueryStreamHandler extends _Handler {
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:logging/logging.dart';
+
+import '../../constants.dart';
+import '../buffer.dart';
+
+import '../handlers/handler.dart';
+import '../handlers/ok_packet.dart';
+
+import '../results/row.dart';
+import '../results/field_impl.dart';
+import '../results/results_impl.dart';
+
+import 'result_set_header_packet.dart';
+import 'standard_data_packet.dart';
+
+class QueryStreamHandler extends Handler {
   static const int STATE_HEADER_PACKET = 0;
   static const int STATE_FIELD_PACKETS = 1;
   static const int STATE_ROW_PACKETS = 2;
   final String _sql;
   int _state = STATE_HEADER_PACKET;
 
-  _OkPacket _okPacket;
-  _ResultSetHeaderPacket _resultSetHeaderPacket;
-  List<_FieldImpl> _fieldPackets;
+  OkPacket _okPacket;
+  ResultSetHeaderPacket _resultSetHeaderPacket;
+  final List<FieldImpl> fieldPackets = <FieldImpl>[];
+
   Map<Symbol, int> _fieldIndex;
 
   StreamController<Row> _streamController;
 
-  _QueryStreamHandler(String this._sql) {
-    log = new Logger("QueryStreamHandler");
-    _fieldPackets = <_FieldImpl>[];
-  }
+  QueryStreamHandler(String this._sql)
+      : super(new Logger("QueryStreamHandler"));
 
   Buffer createRequest() {
     var encoded = UTF8.encode(_sql);
@@ -27,7 +44,7 @@ class _QueryStreamHandler extends _Handler {
     return buffer;
   }
 
-  _HandlerResponse processResponse(Buffer response) {
+  HandlerResponse processResponse(Buffer response) {
     log.fine("Processing query response");
     var packet = checkResponse(response, false, _state == STATE_ROW_PACKETS);
     if (packet == null) {
@@ -50,10 +67,10 @@ class _QueryStreamHandler extends _Handler {
             break;
         }
       }
-    } else if (packet is _OkPacket) {
+    } else if (packet is OkPacket) {
       return _handleOkPacket(packet);
     }
-    return _HandlerResponse.notFinished;
+    return HandlerResponse.notFinished;
   }
 
   _handleEndOfFields() {
@@ -61,8 +78,10 @@ class _QueryStreamHandler extends _Handler {
     _streamController = new StreamController<Row>(onCancel: () {
       _streamController.close();
     });
-    this._fieldIndex = _createFieldIndex();
-    return new _HandlerResponse(result: new _ResultsImpl(null, null, _fieldPackets, stream: _streamController.stream));
+    this._fieldIndex = createFieldIndex();
+    return new HandlerResponse(
+        result: new ResultsImpl(null, null, fieldPackets,
+            stream: _streamController.stream));
   }
 
   _handleEndOfRows() {
@@ -70,23 +89,24 @@ class _QueryStreamHandler extends _Handler {
     // otherwise the stream will be reused in an unfinished state.
     // TODO: can we use Future.delayed elsewhere, to make reusing connections nicer?
     new Future.delayed(new Duration(seconds: 0), _streamController.close);
-    return new _HandlerResponse(finished: true);
+    return new HandlerResponse(finished: true);
   }
 
   _handleHeaderPacket(Buffer response) {
-    _resultSetHeaderPacket = new _ResultSetHeaderPacket(response);
+    _resultSetHeaderPacket = new ResultSetHeaderPacket(response);
     log.fine(_resultSetHeaderPacket.toString());
     _state = STATE_FIELD_PACKETS;
   }
 
   _handleFieldPacket(Buffer response) {
-    var fieldPacket = new _FieldImpl._(response);
+    var fieldPacket = new FieldImpl(response);
     log.fine(fieldPacket.toString());
-    _fieldPackets.add(fieldPacket);
+    fieldPackets.add(fieldPacket);
   }
 
   _handleRowPacket(Buffer response) {
-    var dataPacket = new _StandardDataPacket(response, _fieldPackets, _fieldIndex);
+    var dataPacket =
+        new StandardDataPacket(response, fieldPackets, _fieldIndex);
     log.fine(dataPacket.toString());
     _streamController.add(dataPacket);
   }
@@ -100,15 +120,17 @@ class _QueryStreamHandler extends _Handler {
     }
 
     //TODO is this finished value right?
-    return new _HandlerResponse(
-        finished: finished, result: new _ResultsImpl(_okPacket.insertId, _okPacket.affectedRows, _fieldPackets));
+    return new HandlerResponse(
+        finished: finished,
+        result: new ResultsImpl(
+            _okPacket.insertId, _okPacket.affectedRows, fieldPackets));
   }
 
-  Map<Symbol, int> _createFieldIndex() {
+  Map<Symbol, int> createFieldIndex() {
     var identifierPattern = new RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$');
     var fieldIndex = new Map<Symbol, int>();
-    for (var i = 0; i < _fieldPackets.length; i++) {
-      var name = _fieldPackets[i].name;
+    for (var i = 0; i < fieldPackets.length; i++) {
+      var name = fieldPackets[i].name;
       if (identifierPattern.hasMatch(name)) {
         fieldIndex[new Symbol(name)] = i;
       }
