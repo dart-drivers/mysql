@@ -68,6 +68,7 @@ class BufferedSocket {
     try {
       var socket;
       socket = await socketFactory(host, port);
+      socket.setOption(SocketOption.TCP_NODELAY, true);
       var bufferedSocket = new BufferedSocket._(socket, onDataReady, onDone, onError, onClosed);
       if (onConnection != null) {
         onConnection(bufferedSocket);
